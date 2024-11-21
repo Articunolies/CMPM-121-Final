@@ -1,6 +1,6 @@
 class Game extends Phaser.Scene {
 
-	PLAYER_VELOCITY = 100;
+	PLAYER_VELOCITY = 50;
 	GRID_WIDTH = 2;
 	GRID_HEIGHT = 1;
 	TILE_SIZE = 18;		// in pixels
@@ -23,10 +23,20 @@ class Game extends Phaser.Scene {
     }
 
 	setInput() {
+
+		// Player
 		this.moveUpKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
 		this.moveDownKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
 		this.moveLeftKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
 		this.moveRightKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
+
+		// Time
+		this.advanceTimeKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
+		this.advanceTimeKey.on("down", () => this.advanceTime());
+	}
+
+	advanceTime() {
+		console.log("advancing time");
 	}
 
 	createGrid() {
@@ -36,13 +46,13 @@ class Game extends Phaser.Scene {
 		for (let y = 0; y < this.GRID_HEIGHT; y++) {
 			this.grid[y] = [];
 			for (let x = 0; x < this.GRID_WIDTH; x++) {
-				this.grid[y][x] = this.physics.add.sprite(500 + x * this.TILE_SIZE, 300 + y * this.TILE_SIZE, "dirt");
+				this.grid[y][x] = this.physics.add.sprite(250 + x * this.TILE_SIZE, 150 + y * this.TILE_SIZE, "dirt");
 			}
 		}
 	}
 
 	createPlayer() {
-		this.player = this.physics.add.sprite(500, 250, "player");
+		this.player = this.physics.add.sprite(250, 125, "player");
 		this.player.setCollideWorldBounds(true);
 	}
 
