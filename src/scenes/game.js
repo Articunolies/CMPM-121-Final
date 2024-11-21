@@ -6,7 +6,7 @@ class Game extends Phaser.Scene
 
 	create()
 	{
-
+		
 	}
 
     update()
