@@ -26,6 +26,12 @@ class Game extends Phaser.Scene {
 	}
 
 	create() {
+		this.CANVAS_WIDTH = this.sys.game.config.width;
+		this.CANVAS_HEIGHT = this.sys.game.config.height;
+		this.GRID_HEIGHT = this.CANVAS_HEIGHT / this.TILE_SIZE;
+		this.GRID_WIDTH = this.CANVAS_WIDTH / this.TILE_SIZE;
+
+
 		this.initInput();
 		this.createGrid();
 		this.createPlayer();
@@ -99,7 +105,7 @@ class Game extends Phaser.Scene {
 					plant: null,
 					sunLevel: 0,
 					moisture: 0,
-					sprite: this.physics.add.sprite(100 + x * this.TILE_SIZE, 75 + y * this.TILE_SIZE, "dirt")
+					sprite: this.physics.add.sprite(this.TILE_SIZE/2 + x * this.TILE_SIZE,this.TILE_SIZE/2 + y * this.TILE_SIZE, "dirt")
 				}
 			}
 		}
