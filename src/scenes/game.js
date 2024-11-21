@@ -1,6 +1,9 @@
 class Game extends Phaser.Scene {
 
 	PLAYER_VELOCITY = 100;
+	GRID_WIDTH = 2;
+	GRID_HEIGHT = 1;
+	TILE_SIZE = 18;		// in pixels
 
 	constructor() {
 		super("gameScene");
@@ -9,10 +12,9 @@ class Game extends Phaser.Scene {
 	create() {
 
 		this.setInput();
-		
-		// Create player
-		this.player = this.physics.add.sprite(100, 100, "player");
-		this.player.setCollideWorldBounds(true);
+		this.createGrid();
+		this.createPlayer();
+		this.cameras.main.setZoom(2);
 	}
 
     update() {
@@ -27,8 +29,25 @@ class Game extends Phaser.Scene {
 		this.moveRightKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
 	}
 
+	createGrid() {
+
+		// Create 2D array
+		this.grid = [];
+		for (let y = 0; y < this.GRID_HEIGHT; y++) {
+			this.grid[y] = [];
+			for (let x = 0; x < this.GRID_WIDTH; x++) {
+				this.grid[y][x] = this.physics.add.sprite(500 + x * this.TILE_SIZE, 300 + y * this.TILE_SIZE, "dirt");
+			}
+		}
+	}
+
+	createPlayer() {
+		this.player = this.physics.add.sprite(500, 250, "player");
+		this.player.setCollideWorldBounds(true);
+	}
+
 	handlePlayerMovement() {
-		
+
 		// For making sure the player doesn't move faster diagonally
 		let numMoveDirections = 0;
 
