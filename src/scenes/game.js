@@ -1,15 +1,18 @@
 class Game extends Phaser.Scene {
 
 	/*
-	interface Plant {
-		level: number;
-		sprite: 
-	}
+	for when we eventually get typescript to work
+	
 	interface Tile {
 		plant: Plant;
 		sunLevel: number;
 		moisture: number;
 		sprite: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
+	}
+
+	interface Plant {
+		level: number;
+		sprite: Phaser.GameObjects.Sprite;
 	}
 	*/
 
@@ -17,29 +20,24 @@ class Game extends Phaser.Scene {
 	GRID_WIDTH = 2;
 	GRID_HEIGHT = 1;
 	TILE_SIZE = 18;		// in pixels
-	ID_GRASS = 1;
-	ID_MUSHROOM = 2;
 
 	constructor() {
 		super("gameScene");
 	}
 
 	create() {
-
-		this.setInput();
+		this.initInput();
 		this.createGrid();
 		this.createPlayer();
 		this.displayControls();
 	}
 
     update() {
-
 		this.handlePlayerMovement();
 		this.makePlayerTileHitboxFollowPlayer();
     }
 
-	setInput() {
-
+	initInput() {
 		// Player
 		this.moveUpKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
 		this.moveDownKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
@@ -52,18 +50,16 @@ class Game extends Phaser.Scene {
 
 		// Planting
 		this.plantGrassKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ONE);
-		this.plantGrassKey.on("down", () => this.plant(this.ID_GRASS));
+		this.plantGrassKey.on("down", () => this.plant("grass1"));
 		this.plantMushroomKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.TWO);
-		this.plantMushroomKey.on("down", () => this.plant(this.ID_MUSHROOM));
+		this.plantMushroomKey.on("down", () => this.plant("mushroom1"));
 	}
 
 	advanceTime() {
 		console.log("advancing time");
-		console.log(this.grid);
 	}
 
-	plant(id) {
-
+	plant(textureKey) {
 		// Ensure the player has stood on a tile before
 		if (this.tilePlayerWasLastStandingOnIndex == undefined) {
 			return;
@@ -82,23 +78,11 @@ class Game extends Phaser.Scene {
 			return;
 		}
 
-		// Create the plant
-		const plant = {
+		// Create the plant and give it to the tile
+		tile.plant = {
 			level: 1,
-			sprite: this.add.sprite(tile.sprite.x, tile.sprite.y - tile.sprite.height/2)
+			sprite: this.add.sprite(tile.sprite.x, tile.sprite.y - tile.sprite.height/2, textureKey)
 		};
-
-		// Set the plant's texture
-		if (id == this.ID_GRASS) {
-			plant.sprite.setTexture("grass1");
-		}
-		else if (id == this.ID_MUSHROOM) {
-			plant.sprite.setTexture("mushroom1");
-		}
-
-		// Give the plant to the tile
-		tile.plant = plant;
-
 
 		function overlaps(spriteA, spriteB) {
 			return Phaser.Geom.Intersects.RectangleToRectangle(spriteA.getBounds(), spriteB.getBounds());
@@ -106,8 +90,7 @@ class Game extends Phaser.Scene {
 	}
 
 	createGrid() {
-
-		// Create 2D array
+		// Create a 2D array of tiles
 		this.grid = [];
 		for (let y = 0; y < this.GRID_HEIGHT; y++) {
 			this.grid[y] = [];
@@ -123,7 +106,6 @@ class Game extends Phaser.Scene {
 	}
 
 	createPlayer() {
-		
 		// Sprite
 		this.player = this.physics.add.sprite(100, 50, "player");
 		this.player.setCollideWorldBounds(true);
@@ -155,7 +137,6 @@ class Game extends Phaser.Scene {
 	}
 
 	handlePlayerMovement() {
-
 		// For making sure the player doesn't move faster diagonally
 		let numMoveDirections = 0;
 
@@ -192,9 +173,8 @@ class Game extends Phaser.Scene {
 		}
 	}
 
-	makePlayerTileHitboxFollowPlayer()
-	{
-		// use player.body.x instead of player.x etc. so the hitbox doesn't lag behind the player's movement so much
+	makePlayerTileHitboxFollowPlayer() {
+		// use player.body.x instead of player.x etc. so the hitbox doesn't lag behind the player's movement as much
 		this.playerTileHitbox.setPosition(this.player.body.x + this.player.body.width/2, this.player.body.y + this.player.body.height);
 	}
 }
