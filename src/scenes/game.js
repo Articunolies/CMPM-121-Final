@@ -49,6 +49,8 @@ class Game extends Phaser.Scene {
 		this.advanceTimeKey.on("down", () => this.advanceTime());
 
 		// Planting
+		this.reapPlantKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.BACKSPACE);
+		this.reapPlantKey.on("down", () => this.reap());
 		this.plantGrassKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ONE);
 		this.plantGrassKey.on("down", () => this.plant("grass1"));
 		this.plantMushroomKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.TWO);
@@ -59,22 +61,25 @@ class Game extends Phaser.Scene {
 		console.log("advancing time");
 	}
 
+	reap() {
+		// Attempt to get the tile the player is standing on
+		const tile = this.getTilePlayerIsStandingOn();
+
+		// Ensure the player is standing on a tile and it has a plant
+		if (tile == null || tile.plant == null) {
+			return;
+		}
+
+		// Destroy and remove the tile's plant
+		tile.plant.sprite.destroy();
+		tile.plant = null;
+	}
 	plant(textureKey) {
-		// Ensure the player has stood on a tile before
-		if (this.tilePlayerWasLastStandingOnIndex == undefined) {
-			return;
-		}
+		// Attempt to get the tile the player is standing on
+		const tile = this.getTilePlayerIsStandingOn();
 
-		// Get the tile the player was last standing on
-		const tile = this.grid[this.tilePlayerWasLastStandingOnIndex.y][this.tilePlayerWasLastStandingOnIndex.x];
-
-		// Ensure the player is still standing on that tile
-		if (!overlaps(this.playerTileHitbox, tile.sprite)) {
-			return;
-		}
-
-		// Ensure the tile doesn't already have a plant
-		if (tile.plant != null) {
+		// Ensure the player is standing on a tile and it doesn't have a plant
+		if (tile == null || tile.plant != null) {
 			return;
 		}
 
@@ -83,10 +88,26 @@ class Game extends Phaser.Scene {
 			level: 1,
 			sprite: this.add.sprite(tile.sprite.x, tile.sprite.y - tile.sprite.height/2, textureKey)
 		};
-
-		function overlaps(spriteA, spriteB) {
-			return Phaser.Geom.Intersects.RectangleToRectangle(spriteA.getBounds(), spriteB.getBounds());
+	}
+	getTilePlayerIsStandingOn() {
+		// Ensure the player has stood on a tile before
+		if (this.tilePlayerWasLastStandingOnIndex == undefined) {
+			return null;
 		}
+
+		// Get the tile the player was last standing on
+		const tile = this.grid[this.tilePlayerWasLastStandingOnIndex.y][this.tilePlayerWasLastStandingOnIndex.x];
+
+		// Ensure the player is still standing on that tile
+		if (!this.overlaps(this.playerTileHitbox, tile.sprite)) {
+			return null;
+		}
+
+		// Return the tile
+		return tile;
+	}
+	overlaps(spriteA, spriteB) {
+		return Phaser.Geom.Intersects.RectangleToRectangle(spriteA.getBounds(), spriteB.getBounds());
 	}
 
 	createGrid() {
@@ -130,6 +151,7 @@ class Game extends Phaser.Scene {
 		<h2>Controls</h2>
 		Move: WASD<br>
 		Advance Time: RIGHT<br>
+		Reap: BACKSPACE<br>
 		Plant Grass: 1<br>
 		Plant Mushroom: 2
 		`;
