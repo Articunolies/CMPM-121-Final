@@ -64,6 +64,13 @@ class Game extends Phaser.Scene {
 	}
 
 	advanceTime() {
+		for (let y = 0; y < this.GRID_HEIGHT; y++) {
+			for (let x = 0; x < this.GRID_WIDTH; x++) {
+				this.grid[y][x].sunLevel = Math.floor(Math.random() * 5); // Randomly generates a new sun level value each turn(currently between 0 and 5)
+				this.grid[y][x].moisture += Math.floor(Math.random() * 5); // Adds random moisture value
+				console.log(this.grid[y][x]);
+			}
+		}
 		console.log("advancing time");
 	}
 
@@ -89,8 +96,12 @@ class Game extends Phaser.Scene {
 			return;
 		}
 
+		// Apply regex to determine plant type
+		const plantType = textureKey.replace(/\d+$/, ""); // Should hopefully allow for updating sprites depending on plant level and planttype
+
 		// Create the plant and give it to the tile
 		tile.plant = {
+			type: plantType,
 			level: 1,
 			sprite: this.add.sprite(tile.sprite.x, tile.sprite.y - tile.sprite.height/2, textureKey)
 		};
