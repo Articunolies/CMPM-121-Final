@@ -52,6 +52,13 @@ class Game extends Phaser.Scene {
 		this.moveLeftKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
 		this.moveRightKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
 
+		// Debug
+		this.debugKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+        this.debugKey.on("down", () => {
+            this.physics.world.drawDebug = this.physics.world.drawDebug ? false : true
+            this.physics.world.debugGraphic.clear()
+        }, this);
+
 		// Time
 		this.advanceTimeKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
 		this.advanceTimeKey.on("down", () => this.advanceTime());
@@ -168,6 +175,11 @@ class Game extends Phaser.Scene {
 		// Ensure the player is standing on a tile and it has a plant
 		if (tile == null || tile.plant == null) {
 			return;
+		}
+
+		// Remove plant tile from winning set
+		if (this.winningPlants.has(tile.plant)){
+			this.winningPlants.delete(tile.plant);
 		}
 
 		// Destroy and remove the tile's plant
