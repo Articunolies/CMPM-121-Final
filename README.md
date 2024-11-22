@@ -2,20 +2,28 @@
 
 ## How we satisfied the software requirements
 ### [F0.a] 
-In the game the character is controled by using WASD on the keyboard. The character will then move in the direction of the key clicked. The character is able to move in 8 directions and able to walk anywhere on the map. The character is able to move through the 2D grid of our world. The grid is outlined by green and the player has a green hitbox aroudn them.
-[F0.b] 
+In the game, the player's movement is controlled using the WASD keys. The movement functionality is implemented within the handlePlayerMovement() function. The player character moves at a constant velocity defined by the PLAYER_VELOCITY variable (set to 50). The game utilizes a grid system where each tile is TILE_SIZE pixels wide. The grid dimensions are dynamically calculated based on the canvas dimensions using CANVAS_WIDTH, CANVAS_HEIGHT, and TILE_SIZE. The player's position is synced with a hitbox that follows their movement, implemented in the makePlayerTileHitboxFollowPlayer() function.
 
-[F0.c] 
+### [F0.b] 
+Time progresses manually in the game through a press of the right arrow key. The functionality is handled by an event listener tied to Phaser.Input.Keyboard.KeyCodes.RIGHT. Each turn progression triggers three processes: advancing the day counter, checking plant growth conditions, and verifying the win condition. These processes are encapsulated in dedicated functions such as progressDay(), growPlants(), and checkWinCondition().
 
-[F0.d] 
+### [F0.c] 
+The player can reap or sow plants when standing on a grid tile, determined by the getTilePlayerIsStandingOn() function. Sowing is triggered using the numeric keys (1 for grass and 2 for mushrooms), invoking plantGrass() and plantMushroom() functions, respectively. Reaping is implemented by pressing Backspace, which removes the plant on the current tile using the reapPlant() function. These mechanics ensure interactivity is limited to the grid tile under the player.
 
-[F0.e] 
+### [F0.d] 
+Each tile in the grid has sun and moisture levels, stored as sunLevel and moisture properties in the Tile interface. These levels are updated daily through random values generated using Math.random() and normalized to a range of 0–5. The sunLevel resets to zero each day, reflecting the immediate use or loss of sunlight. In contrast, moisture accumulates over time, ensuring persistence through the use of a cumulative update within progressDay().
 
-[F0.f] 
+### [F0.e] 
+The game includes two plant types: grass and mushrooms. Each plant is represented by the Plant interface, which tracks type (either "grass" or "mushroom") and level (ranging from 1 to 2). The level is tied to distinct sprites for visual feedback, updated in updatePlantSprite() based on growth conditions. Plants start at level 1 upon being planted and require specific sun and moisture thresholds to grow.
 
-[F0.g] 
+### [F0.f] 
+Plant growth is governed by environmental conditions and spatial rules. Each plant evaluates its surroundings using the evaluateGrowthConditions() function, which checks sun, moisture, and proximity to other plants. Growth occurs only if all conditions are met, ensuring an interactive simulation of ecological dependencies.
+
+### [F0.g] 
+A play scenario ends when a specific condition is satisfied, such as achieving a defined number of fully grown plants. The win condition is monitored in the checkWinCondition() function, which evaluates the winningPlants set to determine if it contains the required entries.
 
 ## Reflection
+We made a major change during the process of developing our game. Our original language that we wanted to use was Typescript. The implementation and integration of Typescript with Phaser ended up being a lot more complicated and the documentation that we originally found had be outdated for years. Porting the game to Typescript requires us to learn The task of porting our game to be used with Typescript is a complicated task that we thought would need more time and shouldn't be the language with start with. We have made some progress on porting the game, so it isn't hopeless and can be done. We will continue to look into how to port our game into Typescript, but will keep developing in Javascript for now.
 
 # Devlog Entry 0- [11/15/2024]
 
