@@ -11,6 +11,7 @@ class Game extends Phaser.Scene {
 	}
 
 	interface Plant {
+		type: string;
 		level: number;
 		sprite: Phaser.GameObjects.Sprite;
 	}
@@ -64,16 +65,77 @@ class Game extends Phaser.Scene {
 	}
 
 	advanceTime() {
-		for (let y = 0; y < this.GRID_HEIGHT; y++) {
-			for (let x = 0; x < this.GRID_WIDTH; x++) {
-				this.grid[y][x].sunLevel = Math.floor(Math.random() * 5); // Randomly generates a new sun level value each turn(currently between 0 and 5)
-				this.grid[y][x].moisture += Math.floor(Math.random() * 5); // Adds random moisture value
-				console.log(this.grid[y][x]);
-			}
-		}
 		console.log("advancing time");
-	}
 
+		// Loop over the grid
+		this.grid.forEach((row, y) => {
+			row.forEach((tile, x) => {
+				this.setSunAndMoisture(tile);
+				this.attemptToGrowPlant(x, y);
+			});
+		});
+	}
+	setSunAndMoisture(tile) {
+		tile.sunLevel = Math.floor(Math.random() * 5);	// between 0 and 5
+		tile.moisture += Math.floor(Math.random() * 5);	// between 0 and 5
+	}
+	attemptToGrowPlant(x, y) {
+		// Get tile and plant
+		const tile = this.grid[y][x];
+		const plant = tile.plant;
+
+		// Ensure the tile has a plant
+		if (plant == null) {
+			return;
+		}
+
+		// Ensure plant isn't max level
+		if (plant.level > 1) {
+			return;
+		}
+
+		if (plant.type == "grass") {
+			// Check if tile has a left neighbor
+			if (x > 0) {
+				// Ensure the left neighbor doesn't have a mushroom
+				if (this.grid[y][x-1].plant != null && this.grid[y][x-1].plant.type == "mushroom") {
+					return;
+				}
+			}
+			// Ensure there's enough sun and moisture
+			if (tile.sunLevel < 3 || tile.moisture < 5) {
+				return;
+			}
+
+			// Decrease moisture
+			tile.moisture -= 5;
+
+			// Grow plant
+			plant.level++;
+			plant.sprite.setTexture(`${plant.type}${plant.level}`);
+		}
+		else if (plant.type == "mushroom") {
+			// Check if tile has a top neighbor
+			if (y > 0) {
+				// Ensure the top neighbor doesn't have grass
+				if (this.grid[y-1][x].plant != null && this.grid[y-1][x].plant.type == "grass") {
+					return;
+				}
+			}
+			// Ensure there's enough sun and moisture
+			if (tile.sunLevel < 1 || tile.moisture < 15) {
+				return;
+			}
+
+			// Decrease moisture
+			tile.moisture -= 15;
+
+			// Grow plant
+			plant.level++;
+			plant.sprite.setTexture(`${plant.type}${plant.level}`);
+		}
+	}
+	
 	reap() {
 		// Attempt to get the tile the player is standing on
 		const tile = this.getTilePlayerIsStandingOn();
@@ -96,12 +158,9 @@ class Game extends Phaser.Scene {
 			return;
 		}
 
-		// Apply regex to determine plant type
-		const plantType = textureKey.replace(/\d+$/, ""); // Should hopefully allow for updating sprites depending on plant level and planttype
-
 		// Create the plant and give it to the tile
 		tile.plant = {
-			type: plantType,
+			type: textureKey.replace(/\d+$/, ""), // Use regex to determine plant type
 			level: 1,
 			sprite: this.add.sprite(tile.sprite.x, tile.sprite.y - tile.sprite.height/2, textureKey)
 		};
@@ -170,7 +229,10 @@ class Game extends Phaser.Scene {
 		Advance Time: RIGHT<br>
 		Reap: BACKSPACE<br>
 		Plant Grass: 1<br>
-		Plant Mushroom: 2
+		Plant Mushroom: 2<br>
+		<br>
+		Grass can't grow if there's a mushroom to the left of it<br>
+		Mushrooms can't grow if there's grass above it
 		`;
 		document.getElementById("description").innerHTML = controls;
 	}
