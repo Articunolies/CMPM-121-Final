@@ -32,6 +32,7 @@ class Game extends Phaser.Scene {
 		this.GRID_HEIGHT = this.CANVAS_HEIGHT / this.TILE_SIZE;
 		this.GRID_WIDTH = this.CANVAS_WIDTH / this.TILE_SIZE;
 
+		this.winningPlants = new Set(); // Using set to ensure no duplicate entries
 
 		this.initInput();
 		this.createGrid();
@@ -72,6 +73,7 @@ class Game extends Phaser.Scene {
 			row.forEach((tile, x) => {
 				this.setSunAndMoisture(tile);
 				this.attemptToGrowPlant(x, y);
+				this.checkWin(tile);
 			});
 		});
 	}
@@ -135,6 +137,29 @@ class Game extends Phaser.Scene {
 			plant.sprite.setTexture(`${plant.type}${plant.level}`);
 		}
 	}
+
+	checkWin(tile) {
+		// Error checking to ensure there is a plant on the tile
+		if (!tile.plant) {
+			return;
+		}
+	
+		// Ensure the plant is not already in the winning set
+		if (this.winningPlants.has(tile.plant)) {
+			return;
+		}
+	
+		// Check plant level and add to the set if eligible
+		if (tile.plant.level >= 2) {
+			this.winningPlants.add(tile.plant);
+	
+			// Check for win condition
+			if (this.winningPlants.size >= 10) {
+				console.log("Player reached 10 or more plants with level 2 or higher");
+			}
+		}
+	}
+	
 	
 	reap() {
 		// Attempt to get the tile the player is standing on
