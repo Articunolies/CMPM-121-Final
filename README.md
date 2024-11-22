@@ -1,4 +1,23 @@
-# Devlog Entry - [11/15/2024]
+# DevLog Entry 1- [11/22/2024]
+
+## How we satisfied the software requirements
+### [F0.a] 
+In the game the character is controled by using WASD on the keyboard. The character will then move in the direction of the key clicked. The character is able to move in 8 directions and able to walk anywhere on the map. The character is able to move through the 2D grid of our world. The grid is outlined by green and the player has a green hitbox aroudn them.
+[F0.b] 
+
+[F0.c] 
+
+[F0.d] 
+
+[F0.e] 
+
+[F0.f] 
+
+[F0.g] 
+
+## Reflection
+
+# Devlog Entry 0- [11/15/2024]
 
 ## Introducing the team
 Tools Lead: Derek Simpson
@@ -22,15 +41,15 @@ We will be using Phaser as our engine and the browser to deploy our game on the 
 because it is an easy and efficient engine that can help us develop our game. Phaser is also a known engine that doesn't require a lot of learning to use which makes
 the researching technologies process much easier. Phaser also works well with github pages, so we are able to deploy and iterate our game well using github,
 
-We will be using Typescript and JSON (for saving data and Tiled). Phaser can use Typescript to compile a web based game. Phaser also can take in a JSON file that
-contains Tilemap information that references attached images. Typescript is also a well documented language with a lot of libraries that we can use to help us use
+We will be using Javascript and JSON (for saving data and Tiled). Phaser can use Javascript to compile a web based game. Phaser also can take in a JSON file that
+contains Tilemap information that references attached images. Javascript is also a well documented language with a lot of libraries that we can use to help us use
 abstract ideas for our game. 
 
 We will be using GitHub for version control. Visual Studio Code will be our choice of IDE because we can use its LiveServer extension to test and practice CI/CD. 
 Tiled will be used to create tilemaps and levels that the player can interact with. We will also use GitHub pages to publish our game online. We chose
 these tools because the entire team is skilled in using these tools to develop an interactive game. 
 
-Javascript will be our alternate platform choice. Phaser also uses Javascript to implement and compile video games. It also shouldn't be too hard of a switch 
+Typescript will be our alternate platform choice. Phaser can use Typescript to implement and compile video games using yarn and Nodejs. It also shouldn't be too hard of a switch 
 since they are sister languages. We will still be using HTML to deploy it on the web, so our deployment system won't be comprimised by the language change. 
 
 
