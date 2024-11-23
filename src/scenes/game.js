@@ -17,21 +17,23 @@ class Game extends Phaser.Scene {
 	}
 	*/
 
+	// Parameters (can be changed)
 	PLAYER_VELOCITY = 50;
-	GRID_WIDTH = 2;
-	GRID_HEIGHT = 1;
-	TILE_SIZE = 18;		// in pixels
+	GRID_WIDTH = 6;
+	GRID_HEIGHT = 6;
+	GRID_OFFSET_X = 75;
+	GRID_OFFSET_Y = 25;
+	TILE_OFFSET_X = 1;
+	TILE_OFFSET_Y = 1;
+
+	// Constants (don't change)
+	TILE_SIZE = 18;	// in pixels
 
 	constructor() {
 		super("gameScene");
 	}
 
 	create() {
-		this.CANVAS_WIDTH = this.sys.game.config.width;
-		this.CANVAS_HEIGHT = this.sys.game.config.height;
-		this.GRID_HEIGHT = this.CANVAS_HEIGHT / this.TILE_SIZE;
-		this.GRID_WIDTH = this.CANVAS_WIDTH / this.TILE_SIZE;
-
 		this.winningPlants = new Set(); // Using set to ensure no duplicate entries
 
 		this.initInput();
@@ -52,13 +54,6 @@ class Game extends Phaser.Scene {
 		this.moveLeftKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
 		this.moveRightKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
 
-		// Debug
-		this.debugKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
-        this.debugKey.on("down", () => {
-            this.physics.world.drawDebug = this.physics.world.drawDebug ? false : true
-            this.physics.world.debugGraphic.clear()
-        }, this);
-
 		// Time
 		this.advanceTimeKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
 		this.advanceTimeKey.on("down", () => this.advanceTime());
@@ -73,8 +68,6 @@ class Game extends Phaser.Scene {
 	}
 
 	advanceTime() {
-		console.log("advancing time");
-
 		// Loop over the grid
 		this.grid.forEach((row, y) => {
 			row.forEach((tile, x) => {
@@ -144,9 +137,8 @@ class Game extends Phaser.Scene {
 			plant.sprite.setTexture(`${plant.type}${plant.level}`);
 		}
 	}
-
 	checkWin(tile) {
-		// Error checking to ensure there is a plant on the tile
+		// Ensure the tile has a plant
 		if (!tile.plant) {
 			return;
 		}
@@ -166,7 +158,6 @@ class Game extends Phaser.Scene {
 			}
 		}
 	}
-	
 	
 	reap() {
 		// Attempt to get the tile the player is standing on
@@ -233,7 +224,11 @@ class Game extends Phaser.Scene {
 					plant: null,
 					sunLevel: 0,
 					moisture: 0,
-					sprite: this.physics.add.sprite(this.TILE_SIZE/2 + x * this.TILE_SIZE,this.TILE_SIZE/2 + y * this.TILE_SIZE, "dirt")
+					sprite: this.physics.add.sprite(
+						this.GRID_OFFSET_X + x*(this.TILE_OFFSET_X + this.TILE_SIZE),
+						this.GRID_OFFSET_Y + y*(this.TILE_OFFSET_Y + this.TILE_SIZE),
+						"dirt"
+					)
 				}
 			}
 		}
@@ -261,15 +256,19 @@ class Game extends Phaser.Scene {
 
 	displayControls() {
 		const controls = `
+		<h1>Crops Life</h1>
+
+		<h2>Instructions</h2>
+		Grow ten level two plants to win! <br>
+		Grass can't grow if there's a mushroom to its left <br>
+		A mushroom can't grow if there's grass above it
+		
 		<h2>Controls</h2>
 		Move: WASD<br>
 		Advance Time: RIGHT<br>
 		Reap: BACKSPACE<br>
 		Plant Grass: 1<br>
 		Plant Mushroom: 2<br>
-		<br>
-		Grass can't grow if there's a mushroom to the left of it<br>
-		Mushrooms can't grow if there's grass above it
 		`;
 		document.getElementById("description").innerHTML = controls;
 	}
