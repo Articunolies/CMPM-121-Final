@@ -43,10 +43,17 @@ class Tile extends Phaser.Physics.Arcade.Sprite
 		return this._plant;
 	}
 	set plant(species) {
-		// Ensure species is defined since "tile.plant = undefined" is allowed
-		if (species) {
+		// Only make a new plant if this tile doesn't already have one and species is defined
+		if (!this.plant && species) {
 			const plantDataView = new DataView(this.dataView.buffer, this.dataView.byteOffset + Plant.size, Plant.size);
 			this._plant = new Plant(this.scene, this.x, this.y - this.height/2, plantDataView, species);
+		}
+		// Else set plant to whatever value species is (if using this class properly it should always just be undefined)
+	}
+	reap() {
+		if (this.plant) {
+			this.plant.destroy();
+			this.plant = undefined;
 		}
 	}
 }

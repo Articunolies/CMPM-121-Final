@@ -23,7 +23,7 @@ class Plant extends Phaser.GameObjects.Sprite
 		// Set data
 		this.dataView = dataView;
 		this.species = species;
-		this.level = 0;
+		this.level = 1;
 	}
 	getTexture(species) {
 		if (species == Plant.Species.grass) {
@@ -32,6 +32,12 @@ class Plant extends Phaser.GameObjects.Sprite
 		else if (species == Plant.Species.mushroom) {
 			return "mushroom1";
 		}
+	}
+
+	destroy() {	// overload
+		this.species = 0;
+		this.level = 0;
+		super.destroy();
 	}
 
 	get species() {

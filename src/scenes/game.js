@@ -47,6 +47,13 @@ class Game extends Phaser.Scene {
 		this.plantGrassKey.on("down", () => this.plant(Plant.Species.grass));
 		this.plantMushroomKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.TWO);
 		this.plantMushroomKey.on("down", () => this.plant(Plant.Species.mushroom));
+
+		// Debug
+		this.debugKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
+		this.debugKey.on("down", () => {
+			console.log(this.grid[0][0].plant);
+			//console.log(this.gridData);
+		});
 	}
 
 	advanceTime() {
@@ -142,35 +149,30 @@ class Game extends Phaser.Scene {
 	}
 	
 	reap() {
-		// Attempt to get the tile the player is standing on
+		// Get the tile the player is standing on
 		const tile = this.getTilePlayerIsStandingOn();
-
-		// Ensure the player is standing on a tile and it has a plant
-		if (tile == null || tile.plant == null) {
+		if (!tile) {
 			return;
 		}
 
 		// Remove plant tile from winning set
+		/*
 		if (this.winningPlants.has(tile.plant)){
 			this.winningPlants.delete(tile.plant);
 		}
+		*/
 
-		// Destroy and remove the tile's plant
-		tile.plant.sprite.destroy();
-		tile.plant = null;
+		// Reap plant
+		tile.reap();
 	}
 	plant(species) {
-		// Attempt to get the tile the player is standing on
+		// Get the tile the player is standing on
 		const tile = this.getTilePlayerIsStandingOn();
-
-		// Ensure the player is standing on a tile and it doesn't have a plant
-		if (!tile || tile.plant) {
+		if (!tile) {
 			return;
 		}
 
-		// Set the tile's plant
-		// this creates a new Plant instance behind the hood
-		// go to the definition for set plant() in the Tile class if you want to see
+		// Plant plant
 		tile.plant = species;
 	}
 	getTilePlayerIsStandingOn() {
