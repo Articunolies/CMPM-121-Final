@@ -78,7 +78,7 @@ class Game extends Phaser.Scene {
 		});
 
 		// Give feedback
-		console.log("Advancing time...");
+		console.log("Advanced time");
 	}
 	attemptToGrowPlant(x, y, tile, plant) {
 		// Ensure the tile has a plant
@@ -208,10 +208,16 @@ class Game extends Phaser.Scene {
 	}
 
 	saveToSlot(slot) {
+		
 
+		// Give feedback
+		console.log(`Saved to slot ${slot}`);
 	}
 	loadSlot(slot) {
 
+
+		// Give feedback
+		console.log(`Loading slot ${slot}`);
 	}
 
 	createGrid() {
@@ -274,11 +280,15 @@ class Game extends Phaser.Scene {
 		A mushroom cannot grow if there's grass above it
 		
 		<h2>Controls</h2>
-		Move: WASD<br>
-		Advance Time: T<br>
-		Reap: R<br>
-		Plant Grass: 1<br>
-		Plant Mushroom: 2<br>
+		Move: ( WASD )<br>
+		Plant Grass: ( 1 )<br>
+		Plant Mushroom: ( 2 )<br>
+		Reap: ( R )<br>
+		Advance Time: ( T )<br>
+		Save to Slot 1: ( [ )<br>
+		Save to Slot 2: ( ] )<br>
+		Load Slot 1: ( ; )<br>
+		Load Slot 2: ( ' )
 		`;
 		document.getElementById("description").innerHTML = controls;
 	}
