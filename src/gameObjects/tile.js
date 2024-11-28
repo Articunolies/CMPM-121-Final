@@ -38,9 +38,6 @@ class Tile extends Phaser.Physics.Arcade.Sprite
 	set moisture(amount) {
 		this.dataView.setUint8(1, amount);
 	}
-	increaseMoisture(amount) {
-		this.moisture += amount;
-	}
 
 	get plant() {
 		return this.plant;

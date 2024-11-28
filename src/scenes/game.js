@@ -21,7 +21,7 @@ class Game extends Phaser.Scene {
 		this.createInput();
 		this.createPlayer();
 		this.createGrid();
-		//this.displayControls();
+		this.displayControls();
 	}
 
     update() {
@@ -53,18 +53,15 @@ class Game extends Phaser.Scene {
 		// Loop over the grid
 		this.grid.forEach((row, y) => {
 			row.forEach((tile, x) => {
-				this.setSunAndMoisture(tile);
-				this.attemptToGrowPlant(x, y);
-				this.checkWin(tile);
+				tile.sunLevel = Math.floor(Math.random() * 5);	// between 0 and 5
+				tile.moisture += Math.floor(Math.random() * 5);	// between 0 and 5
+				//this.attemptToGrowPlant(x, y);
+				//this.checkWin(tile);
 			});
 		});
 
 		// Give feedback
 		console.log("Advancing time...");
-	}
-	setSunAndMoisture(tile) {
-		tile.sunLevel = Math.floor(Math.random() * 5);	// between 0 and 5
-		tile.moisture += Math.floor(Math.random() * 5);	// between 0 and 5
 	}
 	attemptToGrowPlant(x, y) {
 		// Get tile and plant
@@ -200,15 +197,21 @@ class Game extends Phaser.Scene {
 	}
 
 	createGrid() {
-		// Create an array of (Tile) structs
-		this.grid = new ArrayBuffer(this.GRID_WIDTH * this.GRID_HEIGHT * Tile.size);	// a byte array
+		// Create gridData
+		// holds the data for the Tiles in this.grid in array of structs (AoS) format
+		this.gridData = new ArrayBuffer(this.GRID_WIDTH * this.GRID_HEIGHT * Tile.size);	// a byte array
+
+		// Create grid
+		// a 2D array of Tile instances
+		this.grid = [];
 		for (let y = 0; y < this.GRID_HEIGHT; y++) {
+			this.grid[y] = [];
 			for (let x = 0; x < this.GRID_WIDTH; x++) {
 				// Convert 2D array index to 1D
 				const i = y * this.GRID_WIDTH + x;
 
 				// Create tile DataView
-				const dataView = new DataView(this.grid, i * Tile.size, Tile.size);
+				const dataView = new DataView(this.gridData, i * Tile.size, Tile.size);
 
 				// Create tile
 				const tile = new Tile(
@@ -224,6 +227,9 @@ class Game extends Phaser.Scene {
 					this.playerTileHitbox,
 					() => this.tilePlayerWasLastStandingOnIndex = i
 				);
+
+				// Add tile to grid
+				this.grid[y][x] = tile;
 			}
 		}
 	}
@@ -246,8 +252,8 @@ class Game extends Phaser.Scene {
 
 		<h2>Instructions</h2>
 		Grow ten level two plants to win! <br>
-		Grass can't grow if there's a mushroom to its left <br>
-		A mushroom can't grow if there's grass above it
+		Grass cannot grow if there's a mushroom to its left <br>
+		A mushroom cannot grow if there's grass above it
 		
 		<h2>Controls</h2>
 		Move: WASD<br>

@@ -40,7 +40,4 @@ class Plant extends Phaser.GameObjects.Sprite
 	set level(level) {
 		this.dataView.setUint8(1, level);
 	}
-	levelUp() {
-		this.level++;
-	}
 }
