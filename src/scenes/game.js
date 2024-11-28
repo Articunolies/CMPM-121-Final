@@ -37,11 +37,11 @@ class Game extends Phaser.Scene {
 		this.moveRightKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
 
 		// Time
-		this.advanceTimeKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
+		this.advanceTimeKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.T);
 		this.advanceTimeKey.on("down", () => this.advanceTime());
 
 		// Planting
-		this.reapPlantKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.BACKSPACE);
+		this.reapPlantKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
 		this.reapPlantKey.on("down", () => this.reap());
 		this.plantGrassKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ONE);
 		this.plantGrassKey.on("down", () => this.plant(Plant.Species.grass));
@@ -258,8 +258,8 @@ class Game extends Phaser.Scene {
 		
 		<h2>Controls</h2>
 		Move: WASD<br>
-		Advance Time: RIGHT<br>
-		Reap: BACKSPACE<br>
+		Advance Time: T<br>
+		Reap: R<br>
 		Plant Grass: 1<br>
 		Plant Mushroom: 2<br>
 		`;
