@@ -19,6 +19,7 @@ class Plant extends Phaser.GameObjects.Sprite
 		super(scene, x, y, "dirt");
 		scene.add.existing(this);
 		scene.physics.add.existing(this);
+		this.setDepth(Z_PLANT);
 
 		// Set data
 		this.dataView = dataView;

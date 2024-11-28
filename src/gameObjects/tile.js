@@ -14,6 +14,7 @@ class Tile extends Phaser.Physics.Arcade.Sprite
 		super(scene, x, y, "dirt");
 		scene.add.existing(this);
 		scene.physics.add.existing(this);
+		this.setDepth(Z_TILE);
 
 		// Set data
 		this.dataView = dataView;

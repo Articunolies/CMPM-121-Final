@@ -1,22 +1,4 @@
 class Game extends Phaser.Scene {
-
-	/*
-	for when we eventually get typescript to work
-	
-	interface Tile {	// 4 bytes
-		plant: Plant;		// 2 bytes / 16 bits
-		sunLevel: number;	// uint8 (8 bit)
-		moisture: number;	// uint8 (8 bit)
-		sprite: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
-	}
-
-	interface Plant {	// 2 bytes
-		type: string;	// uint8 (8 bit)
-		level: number;	// uint 8 (8 bit)
-		sprite: Phaser.GameObjects.Sprite;
-	}
-	*/
-
 	// Parameters (can be changed)
 	PLAYER_VELOCITY = 50;
 	GRID_WIDTH = 2;
@@ -36,18 +18,18 @@ class Game extends Phaser.Scene {
 	create() {
 		this.winningPlants = new Set(); // Using set to ensure no duplicate entries
 
-		this.initInput();
+		this.createInput();
+		this.createPlayer();
 		this.createGrid();
-		//this.createPlayer();
 		//this.displayControls();
 	}
 
     update() {
-		//this.handlePlayerMovement();
-		//this.makePlayerTileHitboxFollowPlayer();
+		this.handlePlayerMovement();
+		this.makePlayerTileHitboxFollowPlayer();
     }
 
-	initInput() {
+	createInput() {
 		// Player
 		this.moveUpKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
 		this.moveDownKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
@@ -222,13 +204,25 @@ class Game extends Phaser.Scene {
 		this.grid = new ArrayBuffer(this.GRID_WIDTH * this.GRID_HEIGHT * Tile.size);	// a byte array
 		for (let y = 0; y < this.GRID_HEIGHT; y++) {
 			for (let x = 0; x < this.GRID_WIDTH; x++) {
-				const i = y * this.GRID_WIDTH + x;	// convert 2D array indexing to 1D
+				// Convert 2D array index to 1D
+				const i = y * this.GRID_WIDTH + x;
+
+				// Create tile DataView
 				const dataView = new DataView(this.grid, i * Tile.size, Tile.size);
-				new Tile(
+
+				// Create tile
+				const tile = new Tile(
 					this,
 					this.GRID_OFFSET_X + x*(this.TILE_OFFSET_X + this.TILE_SIZE),
 					this.GRID_OFFSET_Y + y*(this.TILE_OFFSET_Y + this.TILE_SIZE),
 					dataView
+				);
+
+				// Create overlap between tile and player
+				this.physics.add.overlap(
+					tile,
+					this.playerTileHitbox,
+					() => this.tilePlayerWasLastStandingOnIndex = i
 				);
 			}
 		}
@@ -236,22 +230,14 @@ class Game extends Phaser.Scene {
 
 	createPlayer() {
 		// Sprite
-		this.player = this.physics.add.sprite(100, 50, "player");
+		this.player = this.physics.add.sprite(150, 50, "player");
 		this.player.setCollideWorldBounds(true);
+		this.player.setDepth(Z_PLAYER);
 
 		// Tile Hitbox
 		// ensures the player can only reap/sow plants on the tile they're standing on
 		this.playerTileHitbox = this.add.zone(0, 0, 1, 1);
 		this.physics.add.existing(this.playerTileHitbox);
-		this.grid.forEach((row, y) => {
-			row.forEach((tile, x) => {
-				this.physics.add.overlap(
-					tile.sprite,
-					this.playerTileHitbox,
-					() => this.tilePlayerWasLastStandingOnIndex = { y: y, x: x }
-				);
-			});
-		});
 	}
 
 	displayControls() {
