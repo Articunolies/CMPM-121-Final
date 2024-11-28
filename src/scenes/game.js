@@ -3,18 +3,20 @@ class Game extends Phaser.Scene {
 	/*
 	for when we eventually get typescript to work
 	
-	interface Tile {
-		plant: Plant;
-		sunLevel: number;
-		moisture: number;
+	interface Tile {	// 4 bytes
+		plant: Plant;		// 2 bytes / 16 bits
+		sunLevel: number;	// uint8 (8 bit)
+		moisture: number;	// uint8 (8 bit)
 		sprite: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 	}
 
-	interface Plant {
-		type: string;
-		level: number;
+	interface Plant {	// 2 bytes
+		type: string;	// uint8 (8 bit)
+		level: number;	// uint 8 (8 bit)
 		sprite: Phaser.GameObjects.Sprite;
 	}
+
+
 	*/
 
 	// Parameters (can be changed)
@@ -28,6 +30,7 @@ class Game extends Phaser.Scene {
 
 	// Constants (don't change)
 	TILE_SIZE = 18;	// in pixels
+	TILE_NUM_BYTES = 4;
 
 	constructor() {
 		super("gameScene");
@@ -76,6 +79,9 @@ class Game extends Phaser.Scene {
 				this.checkWin(tile);
 			});
 		});
+
+		// Give feedback
+		console.log("Advancing time...");
 	}
 	setSunAndMoisture(tile) {
 		tile.sunLevel = Math.floor(Math.random() * 5);	// between 0 and 5
@@ -232,6 +238,9 @@ class Game extends Phaser.Scene {
 				}
 			}
 		}
+
+		const buffer = new ArrayBuffer(this.GRID_WIDTH * this.GRID_HEIGHT * this.TILE_NUM_BYTES);	// a byte array
+		this.view = new DataView(buffer);
 	}
 
 	createPlayer() {
