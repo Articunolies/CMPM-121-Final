@@ -4,13 +4,17 @@ class Tile extends Phaser.Physics.Arcade.Sprite
 	/*
 		Bytes	Type	Attribute
 		-------------------------
-		0		UInt8	sunLevel
-		1		UInt8	moisture
+		0		Uint8	sunLevel
+		1		Uint8	moisture
 		2-3		Plant	plant
 	*/
 
-	constructor(dataView, scene, x, y)
-	{
+	constructor(scene, x, y, dataView) {
+		// Set sprite
+		super(scene, x, y, "dirt");
+		scene.add.existing(this);
+		scene.physics.add.existing(this);
+
 		// Set data
 		this.dataView = dataView;
 		this.sunLevel = 0;
@@ -18,25 +22,20 @@ class Tile extends Phaser.Physics.Arcade.Sprite
 
 		// Set plant
 		this.plant = null;
-
-		// Set sprite
-		super(scene, x, y, "dirt");
-		scene.add.existing(this);
-		scene.physics.add.existing(this);
 	}
 
 	get sunLevel() {
-		return this.dataView.getUInt8(0);
+		return this.dataView.getUint8(0);
 	}
 	set sunLevel(level) {
-		this.dataView.setUInt8(0, level);
+		this.dataView.setUint8(0, level);
 	}
 
 	get moisture() {
-		return this.dataView.getUInt8(1);
+		return this.dataView.getUint8(1);
 	}
 	set moisture(amount) {
-		this.dataView.setUInt8(1, amount);
+		this.dataView.setUint8(1, amount);
 	}
 	increaseMoisture(amount) {
 		this.moisture += amount;
@@ -46,7 +45,10 @@ class Tile extends Phaser.Physics.Arcade.Sprite
 		return this.plant;
 	}
 	set plant(type) {
-		const plantDataView = new DataView(this.dataView.buffer, this.dataView.byteOffset + Plant.size, Plant.size);
-		this.plant = new Plant(plantDataView, type, this.scene, this.x, this.y - this.height/2);
+		// Ensure type isn't null since programmers are allowed to write "tile.plant = null;"
+		if (type) {
+			const plantDataView = new DataView(this.dataView.buffer, this.dataView.byteOffset + Plant.size, Plant.size);
+			this.plant = new Plant(plantDataView, type, this.scene, this.x, this.y - this.height/2);
+		}
 	}
 }

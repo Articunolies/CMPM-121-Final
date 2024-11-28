@@ -15,22 +15,19 @@ class Game extends Phaser.Scene {
 		level: number;	// uint 8 (8 bit)
 		sprite: Phaser.GameObjects.Sprite;
 	}
-
-
 	*/
 
 	// Parameters (can be changed)
 	PLAYER_VELOCITY = 50;
 	GRID_WIDTH = 2;
 	GRID_HEIGHT = 2;
-	GRID_OFFSET_X = 75;
-	GRID_OFFSET_Y = 25;
+	GRID_OFFSET_X = 100;
+	GRID_OFFSET_Y = 50;
 	TILE_OFFSET_X = 1;
 	TILE_OFFSET_Y = 1;
 
 	// Constants (don't change)
 	TILE_SIZE = 18;	// in pixels
-	TILE_NUM_BYTES = 4;
 
 	constructor() {
 		super("gameScene");
@@ -41,13 +38,13 @@ class Game extends Phaser.Scene {
 
 		this.initInput();
 		this.createGrid();
-		this.createPlayer();
-		this.displayControls();
+		//this.createPlayer();
+		//this.displayControls();
 	}
 
     update() {
-		this.handlePlayerMovement();
-		this.makePlayerTileHitboxFollowPlayer();
+		//this.handlePlayerMovement();
+		//this.makePlayerTileHitboxFollowPlayer();
     }
 
 	initInput() {
@@ -221,32 +218,19 @@ class Game extends Phaser.Scene {
 	}
 
 	createGrid() {
-		// Create a 2D array of tiles
-		this.grid = [];
+		// Create an array of (Tile) structs
+		this.grid = new ArrayBuffer(this.GRID_WIDTH * this.GRID_HEIGHT * Tile.size);	// a byte array
 		for (let y = 0; y < this.GRID_HEIGHT; y++) {
-			this.grid[y] = [];
 			for (let x = 0; x < this.GRID_WIDTH; x++) {
-				this.grid[y][x] = {
-					plant: null,
-					sunLevel: 0,
-					moisture: 0,
-					sprite: this.physics.add.sprite(
-						this.GRID_OFFSET_X + x*(this.TILE_OFFSET_X + this.TILE_SIZE),
-						this.GRID_OFFSET_Y + y*(this.TILE_OFFSET_Y + this.TILE_SIZE),
-						"dirt"
-					)
-				}
+				const i = y * this.GRID_WIDTH + x;	// convert 2D array indexing to 1D
+				const dataView = new DataView(this.grid, i * Tile.size, Tile.size);
+				new Tile(
+					this,
+					this.GRID_OFFSET_X + x*(this.TILE_OFFSET_X + this.TILE_SIZE),
+					this.GRID_OFFSET_Y + y*(this.TILE_OFFSET_Y + this.TILE_SIZE),
+					dataView
+				);
 			}
-		}
-
-		const buffer = new ArrayBuffer(this.GRID_WIDTH * this.GRID_HEIGHT * this.TILE_NUM_BYTES);	// a byte array
-		this.view = new DataView(buffer);
-		for (let i = 0; i < this.GRID_WIDTH * this.GRID_HEIGHT; i += this.TILE_NUM_BYTES)
-		{
-			this.view.setUint8(i, 0);	// sunLevel
-			this.view.setUint8(i+1, 0);	// moisture
-			this.view.setUint8(i+2, 0);	// plant.type
-			this.view.setUint8(i+3, 0);	// plant.level
 		}
 	}
 

@@ -1,11 +1,11 @@
-class Plant extends Phaser.Physics.Arcade.Sprite
+class Plant extends Phaser.GameObjects.Sprite
 {
 	static size = 2;	// add readonly when move to TS
 	/*
 		Bytes	Type	Attribute
 		-------------------------
-		0		UInt8	type
-		1		UInt8	level
+		0		Uint8	type
+		1		Uint8	level
 	*/
 	static types =
 	{
@@ -13,31 +13,31 @@ class Plant extends Phaser.Physics.Arcade.Sprite
 		mushroom: 1
 	};
 
-	constructor(dataView, type, scene, x, y)
+	constructor(scene, x, y, dataView, type)
 	{
-		// Set data
-		this.dataView = dataView;
-		this.type = type;
-		this.level = 0;
-
 		// Set sprite
 		super(scene, x, y, "dirt");
 		scene.add.existing(this);
 		scene.physics.add.existing(this);
+
+		// Set data
+		this.dataView = dataView;
+		this.type = type;
+		this.level = 0;
 	}
 
 	get type() {
-		return this.dataView.getUInt8(0);
+		return this.dataView.getUint8(0);
 	}
 	set type(type) {
-		this.dataView.setUInt8(0, type);
+		this.dataView.setUint8(0, type);
 	}
 
 	get level() {
-		return this.dataView.getUInt8(1);
+		return this.dataView.getUint8(1);
 	}
 	set level(level) {
-		this.dataView.setUInt8(1, level);
+		this.dataView.setUint8(1, level);
 	}
 	levelUp() {
 		this.level++;
