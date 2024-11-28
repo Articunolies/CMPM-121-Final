@@ -47,8 +47,10 @@ class Tile extends Phaser.Physics.Arcade.Sprite
 		if (!this.plant && species) {
 			const plantDataView = new DataView(this.dataView.buffer, this.dataView.byteOffset + Plant.size, Plant.size);
 			this._plant = new Plant(this.scene, this.x, this.y - this.height/2, plantDataView, species);
+			return;
 		}
 		// Else set plant to whatever value species is (if using this class properly it should always just be undefined)
+		this._plant = species;
 	}
 	reap() {
 		if (this.plant) {

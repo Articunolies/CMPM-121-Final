@@ -63,7 +63,7 @@ class Game extends Phaser.Scene {
 				tile.sunLevel = Math.floor(Math.random() * 5);	// between 0 and 5
 				tile.moisture += Math.floor(Math.random() * 5);	// between 0 and 5
 				this.attemptToGrowPlant(x, y, tile, tile.plant);
-				//this.checkWin(tile);
+				this.checkWin(tile);
 			});
 		});
 
@@ -145,8 +145,8 @@ class Game extends Phaser.Scene {
 			this.winningPlants.add(tile.plant);
 	
 			// Check for win condition
-			if (this.winningPlants.size >= 10) {
-				console.log("Player reached 10 or more plants with level 2 or higher");
+			if (this.winningPlants.size >= 4) {
+				console.log("You Won!");
 			}
 		}
 	}
@@ -159,11 +159,9 @@ class Game extends Phaser.Scene {
 		}
 
 		// Remove plant tile from winning set
-		/*
 		if (this.winningPlants.has(tile.plant)){
 			this.winningPlants.delete(tile.plant);
 		}
-		*/
 
 		// Reap plant
 		tile.reap();
@@ -254,7 +252,7 @@ class Game extends Phaser.Scene {
 		<h1>Crops Life</h1>
 
 		<h2>Instructions</h2>
-		Grow ten level two plants to win! <br>
+		Grow four level two plants to win! <br>
 		Grass cannot grow if there's a mushroom to its left <br>
 		A mushroom cannot grow if there's grass above it
 		
