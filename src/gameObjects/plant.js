@@ -4,34 +4,42 @@ class Plant extends Phaser.GameObjects.Sprite
 	/*
 		Bytes	Type	Attribute
 		-------------------------
-		0		Uint8	type
+		0		Uint8	species
 		1		Uint8	level
 	*/
-	static types =
-	{
-		grass: 0,
-		mushroom: 1
+	static Species = {
+		// we don't use 0 for a silly reason - if(0) returns false whereas if(1...n) returns true
+		grass: 1,
+		mushroom: 2
 	};
 
-	constructor(scene, x, y, dataView, type)
-	{
+	constructor(scene, x, y, dataView, species) {		
 		// Set sprite
-		super(scene, x, y, "dirt");
+		super(scene, x, y);
 		scene.add.existing(this);
-		scene.physics.add.existing(this);
+		this.setTexture(this.getTexture(species));
 		this.setDepth(Z_PLANT);
-
+		
 		// Set data
 		this.dataView = dataView;
-		this.type = type;
+		this.species = species;
 		this.level = 0;
 	}
+	getTexture(species) {
+		if (species == Plant.Species.grass) {
+			return "grass1";
+		}
+		else if (species == Plant.Species.mushroom) {
+			return "mushroom1";
+		}
+	}
 
-	get type() {
+	get species() {
 		return this.dataView.getUint8(0);
 	}
-	set type(type) {
-		this.dataView.setUint8(0, type);
+	set species(species) {
+		
+		this.dataView.setUint8(0, species);
 	}
 
 	get level() {

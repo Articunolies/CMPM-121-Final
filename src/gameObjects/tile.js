@@ -22,7 +22,7 @@ class Tile extends Phaser.Physics.Arcade.Sprite
 		this.moisture = 0;
 
 		// Set plant
-		this.plant = null;
+		this._plant = undefined;	// won't need to use the _ naming when we move to TS, just make this field private and the getter/setter public
 	}
 
 	get sunLevel() {
@@ -40,13 +40,13 @@ class Tile extends Phaser.Physics.Arcade.Sprite
 	}
 
 	get plant() {
-		return this.plant;
+		return this._plant;
 	}
-	set plant(type) {
-		// Ensure type isn't null since programmers are allowed to write "tile.plant = null;"
-		if (type) {
+	set plant(species) {
+		// Ensure species is defined since "tile.plant = undefined" is allowed
+		if (species) {
 			const plantDataView = new DataView(this.dataView.buffer, this.dataView.byteOffset + Plant.size, Plant.size);
-			this.plant = new Plant(plantDataView, type, this.scene, this.x, this.y - this.height/2);
+			this._plant = new Plant(this.scene, this.x, this.y - this.height/2, plantDataView, species);
 		}
 	}
 }

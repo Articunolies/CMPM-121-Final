@@ -44,9 +44,9 @@ class Game extends Phaser.Scene {
 		this.reapPlantKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.BACKSPACE);
 		this.reapPlantKey.on("down", () => this.reap());
 		this.plantGrassKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ONE);
-		this.plantGrassKey.on("down", () => this.plant("grass1"));
+		this.plantGrassKey.on("down", () => this.plant(Plant.Species.grass));
 		this.plantMushroomKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.TWO);
-		this.plantMushroomKey.on("down", () => this.plant("mushroom1"));
+		this.plantMushroomKey.on("down", () => this.plant(Plant.Species.mushroom));
 	}
 
 	advanceTime() {
@@ -159,34 +159,32 @@ class Game extends Phaser.Scene {
 		tile.plant.sprite.destroy();
 		tile.plant = null;
 	}
-	plant(textureKey) {
+	plant(species) {
 		// Attempt to get the tile the player is standing on
 		const tile = this.getTilePlayerIsStandingOn();
 
 		// Ensure the player is standing on a tile and it doesn't have a plant
-		if (tile == null || tile.plant != null) {
+		if (!tile || tile.plant) {
 			return;
 		}
 
-		// Create the plant and give it to the tile
-		tile.plant = {
-			type: textureKey.replace(/\d+$/, ""), // Use regex to determine plant type
-			level: 1,
-			sprite: this.add.sprite(tile.sprite.x, tile.sprite.y - tile.sprite.height/2, textureKey)
-		};
+		// Set the tile's plant
+		// this creates a new Plant instance behind the hood
+		// go to the definition for set plant() in the Tile class if you want to see
+		tile.plant = species;
 	}
 	getTilePlayerIsStandingOn() {
 		// Ensure the player has stood on a tile before
-		if (this.tilePlayerWasLastStandingOnIndex == undefined) {
-			return null;
+		if (!this.tilePlayerWasLastStandingOnIndex) {
+			return undefined;
 		}
 
 		// Get the tile the player was last standing on
 		const tile = this.grid[this.tilePlayerWasLastStandingOnIndex.y][this.tilePlayerWasLastStandingOnIndex.x];
 
 		// Ensure the player is still standing on that tile
-		if (!this.overlaps(this.playerTileHitbox, tile.sprite)) {
-			return null;
+		if (!this.overlaps(this.playerTileHitbox, tile)) {
+			return undefined;
 		}
 
 		// Return the tile
@@ -225,7 +223,7 @@ class Game extends Phaser.Scene {
 				this.physics.add.overlap(
 					tile,
 					this.playerTileHitbox,
-					() => this.tilePlayerWasLastStandingOnIndex = i
+					() => this.tilePlayerWasLastStandingOnIndex = { x: x, y: y }
 				);
 
 				// Add tile to grid
