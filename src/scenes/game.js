@@ -48,6 +48,16 @@ class Game extends Phaser.Scene {
 		this.plantMushroomKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.TWO);
 		this.plantMushroomKey.on("down", () => this.plant(Plant.Species.mushroom));
 
+		// Saving & Loading
+		this.saveToSlot1Key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.OPEN_BRACKET);		// [
+		this.saveToSlot1Key.on("down", () => this.saveToSlot(1));
+		this.saveToSlot2Key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.CLOSED_BRACKET);	// ]
+		//this.saveToSlot2Key.on("down", () => console.log("hi"));
+		this.loadSlot1Key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SEMICOLON);			// ;
+		this.loadSlot1Key.on("down", () => this.loadSlot(1));
+		this.loadSlot2Key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.QUOTES);				// '
+		//this.loadSlot2Key.on("down", () => console.log("hi"));
+
 		// Debug
 		this.debugKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
 		this.debugKey.on("down", () => {
@@ -195,6 +205,13 @@ class Game extends Phaser.Scene {
 	}
 	overlaps(spriteA, spriteB) {
 		return Phaser.Geom.Intersects.RectangleToRectangle(spriteA.getBounds(), spriteB.getBounds());
+	}
+
+	saveToSlot(slot) {
+
+	}
+	loadSlot(slot) {
+
 	}
 
 	createGrid() {
