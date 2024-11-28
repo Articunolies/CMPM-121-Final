@@ -62,7 +62,7 @@ class Game extends Phaser.Scene {
 			row.forEach((tile, x) => {
 				tile.sunLevel = Math.floor(Math.random() * 5);	// between 0 and 5
 				tile.moisture += Math.floor(Math.random() * 5);	// between 0 and 5
-				//this.attemptToGrowPlant(x, y);
+				this.attemptToGrowPlant(x, y, tile, tile.plant);
 				//this.checkWin(tile);
 			});
 		});
@@ -70,61 +70,64 @@ class Game extends Phaser.Scene {
 		// Give feedback
 		console.log("Advancing time...");
 	}
-	attemptToGrowPlant(x, y) {
-		// Get tile and plant
-		const tile = this.grid[y][x];
-		const plant = tile.plant;
-
+	attemptToGrowPlant(x, y, tile, plant) {
 		// Ensure the tile has a plant
-		if (plant == null) {
+		if (!plant) {
 			return;
 		}
 
 		// Ensure plant isn't max level
-		if (plant.level > 1) {
+		if (plant.level >= 2) {
 			return;
 		}
 
-		if (plant.type == "grass") {
-			// Check if tile has a left neighbor
-			if (x > 0) {
-				// Ensure the left neighbor doesn't have a mushroom
-				if (this.grid[y][x-1].plant != null && this.grid[y][x-1].plant.type == "mushroom") {
-					return;
-				}
-			}
-			// Ensure there's enough sun and moisture
-			if (tile.sunLevel < 3 || tile.moisture < 5) {
+		// Attempt to grow plant
+		if (plant.species == Plant.Species.grass) {
+			this.attemptToGrowGrass(x, y, tile, plant);
+		}
+		else if (plant.species == Plant.Species.mushroom) {
+			this.attemptToGrowMushroom(x, y, tile, plant);
+		}
+	}
+	attemptToGrowGrass(x, y, tile, plant) {
+		// Check if tile has a left neighbor
+		if (x > 0) {
+			// Ensure the left neighbor doesn't have a mushroom
+			if (this.grid[y][x-1].plant && this.grid[y][x-1].plant.species == Plant.Species.mushroom) {
 				return;
 			}
-
-			// Decrease moisture
-			tile.moisture -= 5;
-
-			// Grow plant
-			plant.level++;
-			plant.sprite.setTexture(`${plant.type}${plant.level}`);
 		}
-		else if (plant.type == "mushroom") {
-			// Check if tile has a top neighbor
-			if (y > 0) {
-				// Ensure the top neighbor doesn't have grass
-				if (this.grid[y-1][x].plant != null && this.grid[y-1][x].plant.type == "grass") {
-					return;
-				}
-			}
-			// Ensure there's enough sun and moisture
-			if (tile.sunLevel < 1 || tile.moisture < 15) {
+		// Ensure there's enough sun and moisture
+		if (tile.sunLevel < 3 || tile.moisture < 5) {
+			return;
+		}
+
+		// Decrease moisture
+		tile.moisture -= 5;
+
+		// Grow plant
+		plant.level++;
+		plant.setTexture(plant.getTexture());
+	}
+	attemptToGrowMushroom(x, y, tile, plant) {
+		// Check if tile has a top neighbor
+		if (y > 0) {
+			// Ensure the top neighbor doesn't have grass
+			if (this.grid[y-1][x].plant && this.grid[y-1][x].plant.species == Plant.Species.grass) {
 				return;
 			}
-
-			// Decrease moisture
-			tile.moisture -= 15;
-
-			// Grow plant
-			plant.level++;
-			plant.sprite.setTexture(`${plant.type}${plant.level}`);
 		}
+		// Ensure there's enough sun and moisture
+		if (tile.sunLevel < 1 || tile.moisture < 15) {
+			return;
+		}
+
+		// Decrease moisture
+		tile.moisture -= 15;
+
+		// Grow plant
+		plant.level++;
+		plant.setTexture(plant.getTexture());
 	}
 	checkWin(tile) {
 		// Ensure the tile has a plant

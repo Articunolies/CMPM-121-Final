@@ -17,21 +17,25 @@ class Plant extends Phaser.GameObjects.Sprite
 		// Set sprite
 		super(scene, x, y);
 		scene.add.existing(this);
-		this.setTexture(this.getTexture(species));
 		this.setDepth(Z_PLANT);
 		
 		// Set data
 		this.dataView = dataView;
 		this.species = species;
 		this.level = 1;
+
+		// Set texture
+		this.setTexture(this.getTexture());
 	}
-	getTexture(species) {
-		if (species == Plant.Species.grass) {
-			return "grass1";
+	getTexture() {
+		let texture = "";
+		if (this.species == Plant.Species.grass) {
+			texture += "grass";
 		}
-		else if (species == Plant.Species.mushroom) {
-			return "mushroom1";
+		else if (this.species == Plant.Species.mushroom) {
+			texture += "mushroom";
 		}
+		return texture + this.level;
 	}
 
 	destroy() {	// overload

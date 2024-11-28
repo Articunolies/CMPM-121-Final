@@ -56,4 +56,9 @@ class Tile extends Phaser.Physics.Arcade.Sprite
 			this.plant = undefined;
 		}
 	}
+	attemptToGrowPlant() {
+		if (this.plant) {
+			this.plant.attemptToGrow();
+		}
+	}
 }
