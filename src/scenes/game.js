@@ -21,8 +21,8 @@ class Game extends Phaser.Scene {
 
 	// Parameters (can be changed)
 	PLAYER_VELOCITY = 50;
-	GRID_WIDTH = 6;
-	GRID_HEIGHT = 6;
+	GRID_WIDTH = 2;
+	GRID_HEIGHT = 2;
 	GRID_OFFSET_X = 75;
 	GRID_OFFSET_Y = 25;
 	TILE_OFFSET_X = 1;
@@ -241,6 +241,13 @@ class Game extends Phaser.Scene {
 
 		const buffer = new ArrayBuffer(this.GRID_WIDTH * this.GRID_HEIGHT * this.TILE_NUM_BYTES);	// a byte array
 		this.view = new DataView(buffer);
+		for (let i = 0; i < this.GRID_WIDTH * this.GRID_HEIGHT; i += this.TILE_NUM_BYTES)
+		{
+			this.view.setUint8(i, 0);	// sunLevel
+			this.view.setUint8(i+1, 0);	// moisture
+			this.view.setUint8(i+2, 0);	// plant.type
+			this.view.setUint8(i+3, 0);	// plant.level
+		}
 	}
 
 	createPlayer() {
