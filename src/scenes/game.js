@@ -26,11 +26,11 @@ class Game extends Phaser.Scene {
 		this.saveToSlot1Key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.OPEN_BRACKET);		// [
 		this.saveToSlot1Key.on("down", () => this.saveToSlot(1));
 		this.saveToSlot2Key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.CLOSED_BRACKET);	// ]
-		//this.saveToSlot2Key.on("down", () => console.log("hi"));
+		this.saveToSlot2Key.on("down", () => this.saveToSlot(2));
 		this.loadSlot1Key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SEMICOLON);			// ;
 		this.loadSlot1Key.on("down", () => this.loadSlot(1));
 		this.loadSlot2Key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.QUOTES);				// '
-		//this.loadSlot2Key.on("down", () => console.log("hi"));
+		this.loadSlot2Key.on("down", () => this.loadSlot(2));
 
 		// Debug
 		this.debugKey1 = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
