@@ -55,6 +55,9 @@ class Plant extends Phaser.GameObjects.Sprite {
 	set id(id) {
 		this.dataView.setUint8(Plant.OFFSET_ID, id);
 	}
+	get exists() {
+		return this.id != 0;
+	}
 	get species() {
 		if (this.id == Plant.SPECIES.GRASS.id) {
 			return Plant.SPECIES.GRASS;
@@ -63,12 +66,9 @@ class Plant extends Phaser.GameObjects.Sprite {
 			return Plant.SPECIES.MUSHROOM;
 		}
 	}
-	exists() {
-		return this.id != 0;
-	}
-	become(species) {
+	become(species, level) {
 		this.id = species.id;
-		this.level = 1;
+		this.level = level;
 		this.updateTexture();
 		this.setVisible(true);
 	}

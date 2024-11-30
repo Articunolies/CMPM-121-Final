@@ -76,19 +76,16 @@ class Game extends Phaser.Scene {
 	}
 
 	saveToSlot(slot) {
-		// Save to slot
-		localStorage.setItem(`slot${slot}`, this.byteArrayToIntArrayAsString(this.gridData));
+		const intArray = [];
+		const dataView = new DataView(this.grid.data);
+		for (let i = 0; i < dataView.byteLength; i++) {
+			intArray[i] = dataView.getUint8(i);
+		}
+		const string = JSON.stringify(intArray);
+		localStorage.setItem(`slot${slot}`, string);
 
 		// Give feedback
 		console.log(`Saved to slot ${slot}`);
-	}
-	byteArrayToIntArrayAsString(buffer) {
-		const result = [];
-		const dataView = new DataView(buffer);
-		for (let i = 0; i < dataView.byteLength; i++) {
-			result[i] = dataView.getUint8(i);
-		}
-		return JSON.stringify(result);
 	}
 	loadSlot(slot) {
 		// Ensure the slot has a save
@@ -98,29 +95,27 @@ class Game extends Phaser.Scene {
 		}
 
 		// Load slot
-		const intArray = JSON.parse(localStorage.getItem(`slot${slot}`));
-		const dataView = new DataView(this.gridData);
+		const string = localStorage.getItem(`slot${slot}`);
+		const intArray = JSON.parse(string);
+		const dataView = new DataView(this.grid.data);
 		for (let i = 0; i < dataView.byteLength; i++) {
 			dataView.setUint8(i, intArray[i]);
 		}
 
 		// Reload plants
-		this.reloadPlants();
+		this.grid.tiles.forEach(row => {
+			row.forEach(tile => {
+				if (tile.plant.exists) {
+					tile.plant.updateTexture();
+				}
+				tile.plant.setVisible(tile.plant.exists);
+			});
+		});
 
 		// Give feedback
 		console.log(`Loaded slot ${slot}`);
 	}
-	reloadPlants() {
-		// Loop over the grid
-		this.grid.forEach((row, y) => {
-			row.forEach((tile, x) => {
-				tile.removePlant();
-				if (tile.dataView.getUint8(2)) {
-					tile.plant = tile.dataView.getUint8(2);
-				}
-			});
-		});
-	}
+
 
 	displayControls() {
 		const controls = `

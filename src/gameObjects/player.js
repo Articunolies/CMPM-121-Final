@@ -42,7 +42,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
 		// Ensure player is standing on a tile
 		const tile = this.tileStandingOn;
 		if (tile) {
-			tile.plant.become(species);
+			tile.plant.become(species, 1);
 		}
 	}
 	reap() {
