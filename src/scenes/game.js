@@ -105,7 +105,17 @@ class Game extends Phaser.Scene {
 		}
 	}
 	redo() {
+		const data = this.redoGridDatas.pop();
+		if (data) {
+			this.gridDatas.push(data);
+			this.updateGameState();
 
+			// Give feedback
+			console.log("Redoed");
+		}
+		else {
+			console.log("Nothing to redo");
+		}
 	}
 	updateGameState() {
 		// Load data
