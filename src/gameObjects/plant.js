@@ -1,5 +1,4 @@
-class Plant extends Phaser.GameObjects.Sprite
-{
+class Plant extends Phaser.GameObjects.Sprite {
 	static DEPTH = 1;
 	static SPECIES = {
 		GRASS: {
@@ -19,7 +18,6 @@ class Plant extends Phaser.GameObjects.Sprite
 			}
 		},
 	};
-	
 	static MAX_LEVEL = 2;
 
 	static SIZE = 2;	// in bytes
@@ -94,7 +92,7 @@ class Plant extends Phaser.GameObjects.Sprite
 		// Ensure spatial conditions are met
 		if (this.species == Plant.SPECIES.GRASS) {
 			// don't go out of array bounds
-			if (this.tile.position.x > 0) {
+			if (this.tile.gridIndex.x > 0) {
 				if (this.tile.getNeighbor(Tile.DIRECTIONS.LEFT).plant.species == Plant.SPECIES.MUSHROOM) {
 					return;
 				}
@@ -102,7 +100,7 @@ class Plant extends Phaser.GameObjects.Sprite
 		}
 		else if (this.species == Plant.SPECIES.MUSHROOM) {
 			// don't go out of array bounds
-			if (this.tile.position.y > 0) {
+			if (this.tile.gridIndex.y > 0) {
 				if (this.tile.getNeighbor(Tile.DIRECTIONS.UP).plant.species == Plant.SPECIES.GRASS) {
 					return;
 				}

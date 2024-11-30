@@ -1,6 +1,6 @@
-class Tile extends Phaser.Physics.Arcade.Sprite
-{
+class Tile extends Phaser.Physics.Arcade.Sprite {
 	static DEPTH = 0;
+	static WIDTH = 18;	// in pixels
 	static DIRECTIONS = {
 		UP: { x: 0, y: -1 },
 		DOWN: { x: 0, y: 1 },
@@ -19,7 +19,7 @@ class Tile extends Phaser.Physics.Arcade.Sprite
 	static OFFSET_SUN_LEVEL = 0;
 	static OFFSET_MOISTURE = 1;
 
-	constructor(scene, x, y, grid, position, dataView) {
+	constructor(scene, x, y, grid, gridIndex, dataView) {
 		// Set sprite
 		super(scene, x, y, "dirt");
 		scene.add.existing(this);
@@ -28,7 +28,7 @@ class Tile extends Phaser.Physics.Arcade.Sprite
 
 		// Set grid
 		this.grid = grid;
-		this.position = position;
+		this.gridIndex = gridIndex;
 
 		// Set data
 		this.dataView = dataView;
@@ -55,6 +55,6 @@ class Tile extends Phaser.Physics.Arcade.Sprite
 	}
 
 	getNeighbor(direction) {
-		return this.grid[this.position.x + direction.x][this.position.y + direction.y];
+		return this.grid[this.gridIndex.y + direction.y][this.gridIndex.x + direction.x];
 	}
 }
