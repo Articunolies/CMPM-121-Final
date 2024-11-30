@@ -8,6 +8,8 @@ class Game extends Phaser.Scene {
 		this.createEventBus();
 		this.player = new Player(this, 150, 50);
 		this.grid = new Grid(this, 100, 50, 2, 2, 1, 1);
+		this.gridDatas = [this.grid.data.slice(0)];
+		this.redoGridDatas = [];
 		this.winningPlants = new Set();
 
 		// about winningPlants:
@@ -22,6 +24,12 @@ class Game extends Phaser.Scene {
 		// Time
 		this.advanceTimeKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.T);
 		this.advanceTimeKey.on("down", () => this.advanceTime());
+
+		// Undo & Redo
+		this.undoKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
+		this.undoKey.on("down", () => this.undo());
+		this.redoKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
+		this.redoKey.on("down", () => this.redo());
 
 		// Saving & Loading
 		this.saveToSlot1Key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SEMICOLON);			// ;
@@ -39,6 +47,9 @@ class Game extends Phaser.Scene {
 		this.debugKey1 = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
 		this.debugKey1.on("down", () => {
 			console.log(this.grid.data);
+			console.log(this.grid.tiles[0][0].plant.dataView.buffer);
+			//console.log(this.gridDatas.length);
+			//console.log(this.redoGridDatas.length);
 		});
 		this.debugKey2 = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.G);
 		this.debugKey2.on("down", () => {
@@ -77,6 +88,42 @@ class Game extends Phaser.Scene {
 				console.log("You won!");
 			}
 		}
+	}
+
+	undo() {
+		// Ensure we're not popping off the initial state of the game
+		// because updateGameState() requires at least one state to be in gridDatas
+		if (this.gridDatas.length > 1) {
+			this.redoGridDatas.push(this.gridDatas.pop());
+			this.updateGameState();
+
+			// Give feedback
+			console.log("Undoed");
+		}
+		else {
+			console.log("Nothing to undo");
+		}
+	}
+	redo() {
+
+	}
+	updateGameState() {
+		// Load data
+		const dataView1 = new DataView(this.grid.data);
+		const dataview2 = new DataView(this.gridDatas[this.gridDatas.length-1]);
+		for (let i = 0; i < dataView1.byteLength; i++) {
+			dataView1.setUint8(i, dataview2.getUint8(i));
+		}
+
+		// Reload plants
+		this.grid.tiles.forEach(row => {
+			row.forEach(tile => {
+				if (tile.plant.exists) {
+					tile.plant.updateTexture();
+				}
+				tile.plant.setVisible(tile.plant.exists);
+			});
+		});
 	}
 
 	saveToSlot(slot) {
@@ -161,6 +208,10 @@ class Game extends Phaser.Scene {
 
 	createEventBus() {
 		this.eventBus = new Phaser.Events.EventEmitter();
-		this.eventBus.on("grid changed", () => this.saveToSlot('A'));
+		this.eventBus.on("grid changed", () => {
+			const data = this.grid.data.slice(0);	// make a copy
+			this.gridDatas.push(data)
+			this.saveToSlot('A')
+		});
 	}
 }
