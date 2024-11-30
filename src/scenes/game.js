@@ -11,7 +11,6 @@ class Game extends Phaser.Scene {
 		this.gridDatas = [this.grid.data.slice(0)];
 		this.redoGridDatas = [];
 		this.winningPlants = new Set();
-
 		// about winningPlants:
 		// tracks the plants that are contributing to the win condition
 		// is a set to ensure there are no duplicate entries
@@ -56,6 +55,31 @@ class Game extends Phaser.Scene {
 			localStorage.clear();
 			console.log("CLEARED LOCAL STORAGE");
 		});
+	}
+	displayControls() {
+		document.getElementById("description").innerHTML = `
+		<h1>Crops Life</h1>
+
+		<h2>Instructions</h2>
+		Grow a max level plant on each tile to win! <br>
+		Plants have a max level of 2 <br>
+		Grass cannot grow if there's a mushroom to its left <br>
+		A mushroom cannot grow if there's grass above it
+		
+		<h2>Controls</h2>
+		Move: ( WASD ) <br>
+		Plant Grass: ( 1 ) <br>
+		Plant Mushroom: ( 2 ) <br>
+		Reap: ( R ) <br>
+		Advance Time: ( T ) <br>
+		Undo: ( LEFT ) <br>
+		Redo: ( RIGHT ) <br>
+		Save to Slot 1: ( ; ) <br>
+		Save to Slot 2: ( ' ) <br>
+		Load Slot 1: ( [ ) <br>
+		Load Slot 2: ( ] ) <br>
+		Load Auto Save: ( \\ )
+		`;
 	}
 
 	advanceTime() {
@@ -212,30 +236,6 @@ class Game extends Phaser.Scene {
 		else {
 			console.log(`Loaded slot ${slot}`);
 		}
-	}
-
-	displayControls() {
-		const controls = `
-		<h1>Crops Life</h1>
-
-		<h2>Instructions</h2>
-		Grow a max level plant on each tile to win! <br>
-		Plants have a max level of 2 <br>
-		Grass cannot grow if there's a mushroom to its left <br>
-		A mushroom cannot grow if there's grass above it
-		
-		<h2>Controls</h2>
-		Move: ( WASD )<br>
-		Plant Grass: ( 1 )<br>
-		Plant Mushroom: ( 2 )<br>
-		Reap: ( R )<br>
-		Advance Time: ( T )<br>
-		Save to Slot 1: ( [ )<br>
-		Save to Slot 2: ( ] )<br>
-		Load Slot 1: ( ; )<br>
-		Load Slot 2: ( ' )
-		`;
-		document.getElementById("description").innerHTML = controls;
 	}
 
 	createEventBus() {
