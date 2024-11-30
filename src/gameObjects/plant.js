@@ -48,6 +48,12 @@ class Plant extends Phaser.GameObjects.Sprite {
 	updateTexture() {
 		this.setTexture(`${this.species.name}${this.level}`);
 	}
+	reload() {
+		if (this.exists) {
+			this.updateTexture();
+		}
+		this.setVisible(this.exists);
+	}
 
 	get id() {
 		return this.dataView.getUint8(Plant.OFFSET_ID);

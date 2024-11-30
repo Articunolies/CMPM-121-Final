@@ -8,8 +8,8 @@ class Game extends Phaser.Scene {
 		this.createEventBus();
 		this.player = new Player(this, 150, 50);
 		this.grid = new Grid(this, 100, 50, 2, 2, 1, 1);
-		this.gridDatas = [this.grid.data.slice(0)];
-		this.redoGridDatas = [];
+		this.gridStates = [this.grid.state.slice(0)];
+		this.redoGridStates = [];
 		this.winningPlants = new Set();
 		// about winningPlants:
 		// tracks the plants that are contributing to the win condition
@@ -45,7 +45,7 @@ class Game extends Phaser.Scene {
 		// Debug
 		this.debugKey1 = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
 		this.debugKey1.on("down", () => {
-			console.log(this.grid.data);
+			console.log(this.grid.state);
 			console.log(this.grid.tiles[0][0].plant.dataView.buffer);
 			//console.log(this.gridDatas.length);
 			//console.log(this.redoGridDatas.length);
@@ -117,9 +117,9 @@ class Game extends Phaser.Scene {
 	undo() {
 		// Ensure we're not popping off the initial state of the game
 		// because updateGameState() requires at least one state to be in gridDatas
-		if (this.gridDatas.length > 1) {
-			this.redoGridDatas.push(this.gridDatas.pop());
-			this.updateGameState();
+		if (this.gridStates.length > 1) {
+			this.redoGridStates.push(this.gridStates.pop());
+			this.loadCurrentGridState();
 
 			// Give feedback
 			console.log("Undoed");
@@ -129,10 +129,10 @@ class Game extends Phaser.Scene {
 		}
 	}
 	redo() {
-		const data = this.redoGridDatas.pop();
+		const data = this.redoGridStates.pop();
 		if (data) {
-			this.gridDatas.push(data);
-			this.updateGameState();
+			this.gridStates.push(data);
+			this.loadCurrentGridState();
 
 			// Give feedback
 			console.log("Redoed");
@@ -141,50 +141,31 @@ class Game extends Phaser.Scene {
 			console.log("Nothing to redo");
 		}
 	}
-	updateGameState() {
-		// Load data
-		const dataView1 = new DataView(this.grid.data);
-		const dataview2 = new DataView(this.gridDatas[this.gridDatas.length-1]);
-		for (let i = 0; i < dataView1.byteLength; i++) {
-			dataView1.setUint8(i, dataview2.getUint8(i));
+	loadCurrentGridState() {
+		// Make old become new via copy
+		const oldState = new DataView(this.grid.state);
+		const newState = new DataView(this.gridStates[this.gridStates.length-1]);
+		for (let i = 0; i < oldState.byteLength; i++) {
+			oldState.setUint8(i, newState.getUint8(i));
 		}
 
 		// Reload plants
-		this.grid.tiles.forEach(row => {
-			row.forEach(tile => {
-				if (tile.plant.exists) {
-					tile.plant.updateTexture();
-				}
-				tile.plant.setVisible(tile.plant.exists);
-			});
-		});
+		this.grid.tiles.forEach(row => row.forEach(tile => tile.plant.reload()));
 	}
 
 	saveToSlot(slot) {
+		// Initialize save
 		const save = {
-			undos: [],
-			redos: []
-		}
+			gridStates: [],
+			redoGridStates: []
+		};
 
-		this.gridDatas.forEach((buffer, i) => {
-			const intArray = [];
-			const dataView = new DataView(buffer);
-			for (let i = 0; i < dataView.byteLength; i++) {
-				intArray[i] = dataView.getUint8(i);
-			}
-			save.undos[i] = intArray;
-		});
-		this.redoGridDatas.forEach((buffer, i) => {
-			const intArray = [];
-			const dataView = new DataView(buffer);
-			for (let i = 0; i < dataView.byteLength; i++) {
-				intArray[i] = dataView.getUint8(i);
-			}
-			save.redos[i] = intArray;
-		});
+		// Populate save
+		this.gridStates.forEach((state, i) => save.gridStates[i] = this.byteArrayToIntArray(state));
+		this.redoGridStates.forEach((state, i) => save.redoGridStates[i] = this.byteArrayToIntArray(state));
 
-		const string = JSON.stringify(save);
-		localStorage.setItem(`slot${slot}`, string);
+		// Save to slot
+		localStorage.setItem(`slot${slot}`, JSON.stringify(save));
 
 		// Give feedback
 		if (slot == 'A') {
@@ -193,6 +174,14 @@ class Game extends Phaser.Scene {
 		else {
 			console.log(`Saved to slot ${slot}`);
 		}
+	}
+	byteArrayToIntArray(buffer) {
+		const result = [];
+		const dataView = new DataView(buffer);
+		for (let i = 0; i < dataView.byteLength; i++) {
+			result[i] = dataView.getUint8(i);
+		}
+		return result;
 	}
 	loadSlot(slot) {
 		// Ensure the slot has a save
@@ -206,28 +195,22 @@ class Game extends Phaser.Scene {
 			return;
 		}
 
-		// Load slot
-		const string = localStorage.getItem(`slot${slot}`);
-		const save = JSON.parse(string);
+		// Get save
+		const save = JSON.parse(localStorage.getItem(`slot${slot}`));
 
-		save.undos.forEach((intArray, i) => {
-			const buffer = new ArrayBuffer(intArray.length);
-			const dataView = new DataView(buffer);
-			for (let i = 0; i < intArray.length; i++) {
-				dataView.setUint8(i, intArray[i]);
-			}
-			this.gridDatas[i] = buffer;
-		});
-		save.redos.forEach((intArray, i) => {
-			const buffer = new ArrayBuffer(intArray.length);
-			const dataView = new DataView(buffer);
-			for (let i = 0; i < intArray.length; i++) {
-				dataView.setUint8(i, intArray[i]);
-			}
-			this.redoGridDatas[i] = buffer;
-		});
+		// Reset gridStates and redoGridStates
+		// if either has more elements than their counterpart in save
+		// then there will be some elements from the past after the load
+		// so get rid of all of the elements from the past and then load
+		this.gridStates = [];
+		this.redoGridStates = [];
 
-		this.updateGameState();
+		// Populate gridStates and redoGridStates
+		save.gridStates.forEach((intArray, i) => this.gridStates[i] = this.intArrayToByteArray(intArray));
+		save.redoGridStates.forEach((intArray, i) => this.redoGridStates[i] = this.intArrayToByteArray(intArray));
+
+		// Load current grid state
+		this.loadCurrentGridState();
 
 		// Give feedback
 		if (slot == 'A') {
@@ -237,13 +220,20 @@ class Game extends Phaser.Scene {
 			console.log(`Loaded slot ${slot}`);
 		}
 	}
+	intArrayToByteArray(intArray) {
+		const result = new ArrayBuffer(intArray.length);
+		const dataView = new DataView(result);
+		for (let i = 0; i < intArray.length; i++) {
+			dataView.setUint8(i, intArray[i]);
+		}
+		return result;
+	}
 
 	createEventBus() {
 		this.eventBus = new Phaser.Events.EventEmitter();
 		this.eventBus.on("grid changed", () => {
-			const data = this.grid.data.slice(0);	// make a copy
-			this.gridDatas.push(data)
-			this.saveToSlot('A')
+			this.gridStates.push(this.grid.state.slice(0));	// get a copy
+			this.saveToSlot('A');
 		});
 	}
 }

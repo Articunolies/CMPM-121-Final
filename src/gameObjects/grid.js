@@ -1,12 +1,11 @@
 class Grid {
 	constructor(scene, x, y, width, height, tileOffsetX, tileOffsetY) {
-		// Set dimensions
-		this.width = width;
-		this.height = height;
+		// Set numTiles
+		this.numTiles = width * height;
 
-		// Create data
+		// Create state
 		// holds the data for this grid's Tiles (and Plants) in array of structs (AoS) format
-		this.data = new ArrayBuffer(this.numTiles * Tile.SIZE);	// a byte array
+		this.state = new ArrayBuffer(this.numTiles * Tile.SIZE);	// a byte array
 
 		// Create tiles
 		// a 2D array of Tiles
@@ -24,7 +23,7 @@ class Grid {
 					y + tileY * (tileOffsetY + Tile.WIDTH),
 					this.tiles,
 					{ x: tileX, y: tileY },
-					new DataView(this.data, i * Tile.SIZE, Tile.SIZE)
+					new DataView(this.state, i * Tile.SIZE, Tile.SIZE)
 				);
 
 				// Create overlap between tile and player
@@ -38,9 +37,5 @@ class Grid {
 				this.tiles[tileY][tileX] = tile;
 			}
 		}
-	}
-
-	get numTiles() {
-		return this.width * this.height;
 	}
 }
