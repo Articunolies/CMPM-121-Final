@@ -43,6 +43,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
 		const tile = this.tileStandingOn;
 		if (tile) {
 			tile.plant.become(species, 1);
+			this.scene.eventBus.emit("grid changed");
 		}
 	}
 	reap() {
@@ -51,6 +52,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
 		if (tile) {
 			this.scene.winningPlants.delete(tile.plant);
 			tile.plant.remove();
+			this.scene.eventBus.emit("grid changed");
 		}
 	}
 	set tileStandingOn(tile) {

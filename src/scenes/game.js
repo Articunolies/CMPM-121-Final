@@ -5,6 +5,7 @@ class Game extends Phaser.Scene {
 	create() {
 		this.setInput();
 		this.displayControls();
+		this.createEventBus();
 		this.player = new Player(this, 150, 50);
 		this.grid = new Grid(this, 100, 50, 2, 2, 1, 1);
 		this.winningPlants = new Set();
@@ -23,14 +24,16 @@ class Game extends Phaser.Scene {
 		this.advanceTimeKey.on("down", () => this.advanceTime());
 
 		// Saving & Loading
-		this.saveToSlot1Key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.OPEN_BRACKET);		// [
+		this.saveToSlot1Key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SEMICOLON);			// ;
 		this.saveToSlot1Key.on("down", () => this.saveToSlot(1));
-		this.saveToSlot2Key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.CLOSED_BRACKET);	// ]
+		this.saveToSlot2Key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.QUOTES);			// '
 		this.saveToSlot2Key.on("down", () => this.saveToSlot(2));
-		this.loadSlot1Key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SEMICOLON);			// ;
+		this.loadSlot1Key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.OPEN_BRACKET);		// [
 		this.loadSlot1Key.on("down", () => this.loadSlot(1));
-		this.loadSlot2Key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.QUOTES);				// '
+		this.loadSlot2Key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.CLOSED_BRACKET);		// ]
 		this.loadSlot2Key.on("down", () => this.loadSlot(2));
+		this.loadAutoSaveKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.BACK_SLASH);		// \
+		this.loadAutoSaveKey.on("down", () => this.loadSlot('A'));
 
 		// Debug
 		this.debugKey1 = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
@@ -54,6 +57,7 @@ class Game extends Phaser.Scene {
 				this.updateWinProgress(tile.plant);
 			});
 		});
+		this.eventBus.emit("grid changed");
 
 		// Give feedback
 		console.log("Advanced time");
@@ -85,12 +89,22 @@ class Game extends Phaser.Scene {
 		localStorage.setItem(`slot${slot}`, string);
 
 		// Give feedback
-		console.log(`Saved to slot ${slot}`);
+		if (slot == 'A') {
+			console.log("Auto saved");
+		}
+		else {
+			console.log(`Saved to slot ${slot}`);
+		}
 	}
 	loadSlot(slot) {
 		// Ensure the slot has a save
 		if (!localStorage.getItem(`slot${slot}`)) {
-			console.log(`Slot ${slot} is empty`);
+			if (slot == 'A') {
+				console.log(`No auto save found`);
+			}
+			else {
+				console.log(`Slot ${slot} is empty`);
+			}
 			return;
 		}
 
@@ -113,9 +127,13 @@ class Game extends Phaser.Scene {
 		});
 
 		// Give feedback
-		console.log(`Loaded slot ${slot}`);
+		if (slot == 'A') {
+			console.log("Loaded auto save");
+		}
+		else {
+			console.log(`Loaded slot ${slot}`);
+		}
 	}
-
 
 	displayControls() {
 		const controls = `
@@ -139,5 +157,10 @@ class Game extends Phaser.Scene {
 		Load Slot 2: ( ' )
 		`;
 		document.getElementById("description").innerHTML = controls;
+	}
+
+	createEventBus() {
+		this.eventBus = new Phaser.Events.EventEmitter();
+		this.eventBus.on("grid changed", () => this.saveToSlot('A'));
 	}
 }
