@@ -3,6 +3,7 @@ class Game extends Phaser.Scene {
 	PLAYER_VELOCITY = 50;
 	GRID_WIDTH = 2;
 	GRID_HEIGHT = 2;
+	get NUM_TILES() { return this.GRID_WIDTH * this.GRID_HEIGHT; }
 	GRID_OFFSET_X = 100;
 	GRID_OFFSET_Y = 50;
 	TILE_OFFSET_X = 1;
@@ -16,18 +17,20 @@ class Game extends Phaser.Scene {
 	}
 
 	create() {
-		this.winningPlants = new Set(); // Using set to ensure no duplicate entries
-
 		this.createInput();
 		this.createPlayer();
 		this.createGrid();
 		this.displayControls();
+
+		this.winningPlants = new Set();
+		// tracks the plants that are contributing to the win condition
+		// is a set to ensure there are no duplicate entries
 	}
 
-    update() {
+	update() {
 		this.handlePlayerMovement();
 		this.makePlayerTileHitboxFollowPlayer();
-    }
+	}
 
 	createInput() {
 		// Player
@@ -44,9 +47,9 @@ class Game extends Phaser.Scene {
 		this.reapPlantKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
 		this.reapPlantKey.on("down", () => this.reap());
 		this.plantGrassKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ONE);
-		this.plantGrassKey.on("down", () => this.plant(Plant.Species.grass));
+		this.plantGrassKey.on("down", () => this.plant(Plant.SPECIES.GRASS));
 		this.plantMushroomKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.TWO);
-		this.plantMushroomKey.on("down", () => this.plant(Plant.Species.mushroom));
+		this.plantMushroomKey.on("down", () => this.plant(Plant.SPECIES.MUSHROOM));
 
 		// Saving & Loading
 		this.saveToSlot1Key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.OPEN_BRACKET);		// [
@@ -59,10 +62,15 @@ class Game extends Phaser.Scene {
 		//this.loadSlot2Key.on("down", () => console.log("hi"));
 
 		// Debug
-		this.debugKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
-		this.debugKey.on("down", () => {
-			console.log(this.grid[0][0].plant);
-			//console.log(this.gridData);
+		this.debugKey1 = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
+		this.debugKey1.on("down", () => {
+			console.log(this.gridData);
+			//console.log(this.grid[0][0].dataView.getUint8(2));
+		});
+		this.debugKey2 = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.G);
+		this.debugKey2.on("down", () => {
+			localStorage.clear();
+			console.log("CLEARED LOCAL STORAGE");
 		});
 	}
 
@@ -72,91 +80,27 @@ class Game extends Phaser.Scene {
 			row.forEach((tile, x) => {
 				tile.sunLevel = Math.floor(Math.random() * 5);	// between 0 and 5
 				tile.moisture += Math.floor(Math.random() * 5);	// between 0 and 5
-				this.attemptToGrowPlant(x, y, tile, tile.plant);
-				this.checkWin(tile);
+				tile.plant.tryToGrow();
+				this.updateWinProgress(tile.plant);
 			});
 		});
 
 		// Give feedback
 		console.log("Advanced time");
 	}
-	attemptToGrowPlant(x, y, tile, plant) {
-		// Ensure the tile has a plant
-		if (!plant) {
-			return;
-		}
-
-		// Ensure plant isn't max level
-		if (plant.level >= 2) {
-			return;
-		}
-
-		// Attempt to grow plant
-		if (plant.species == Plant.Species.grass) {
-			this.attemptToGrowGrass(x, y, tile, plant);
-		}
-		else if (plant.species == Plant.Species.mushroom) {
-			this.attemptToGrowMushroom(x, y, tile, plant);
-		}
-	}
-	attemptToGrowGrass(x, y, tile, plant) {
-		// Check if tile has a left neighbor
-		if (x > 0) {
-			// Ensure the left neighbor doesn't have a mushroom
-			if (this.grid[y][x-1].plant && this.grid[y][x-1].plant.species == Plant.Species.mushroom) {
-				return;
-			}
-		}
-		// Ensure there's enough sun and moisture
-		if (tile.sunLevel < 3 || tile.moisture < 5) {
-			return;
-		}
-
-		// Decrease moisture
-		tile.moisture -= 5;
-
-		// Grow plant
-		plant.level++;
-		plant.setTexture(plant.getTexture());
-	}
-	attemptToGrowMushroom(x, y, tile, plant) {
-		// Check if tile has a top neighbor
-		if (y > 0) {
-			// Ensure the top neighbor doesn't have grass
-			if (this.grid[y-1][x].plant && this.grid[y-1][x].plant.species == Plant.Species.grass) {
-				return;
-			}
-		}
-		// Ensure there's enough sun and moisture
-		if (tile.sunLevel < 1 || tile.moisture < 15) {
-			return;
-		}
-
-		// Decrease moisture
-		tile.moisture -= 15;
-
-		// Grow plant
-		plant.level++;
-		plant.setTexture(plant.getTexture());
-	}
-	checkWin(tile) {
-		// Ensure the tile has a plant
-		if (!tile.plant) {
-			return;
-		}
-	
+	updateWinProgress(plant) {
 		// Ensure the plant is not already in the winning set
-		if (this.winningPlants.has(tile.plant)) {
+		if (this.winningPlants.has(plant)) {
 			return;
 		}
+
+		// Add the plant to winningPlants if it's at max level
+		if (plant.level >= Plant.MAX_LEVEL) {
+			this.winningPlants.add(plant);
 	
-		// Check plant level and add to the set if eligible
-		if (tile.plant.level >= 2) {
-			this.winningPlants.add(tile.plant);
-	
-			// Check for win condition
-			if (this.winningPlants.size >= 4) {
-				console.log("You Won!");
+			// Check if the player won
+			if (this.winningPlants.size >= this.NUM_TILES) {
+				console.log("You won!");
 			}
 		}
 	}
@@ -174,7 +118,7 @@ class Game extends Phaser.Scene {
 		}
 
 		// Reap plant
-		tile.reap();
+		tile.plant.remove();
 	}
 	plant(species) {
 		// Get the tile the player is standing on
@@ -184,7 +128,7 @@ class Game extends Phaser.Scene {
 		}
 
 		// Plant plant
-		tile.plant = species;
+		tile.plant.become(species);
 	}
 	getTilePlayerIsStandingOn() {
 		// Ensure the player has stood on a tile before
@@ -208,25 +152,59 @@ class Game extends Phaser.Scene {
 	}
 
 	saveToSlot(slot) {
-		
+		// Save to slot
+		localStorage.setItem(`slot${slot}`, this.byteArrayToIntArrayAsString(this.gridData));
 
 		// Give feedback
 		console.log(`Saved to slot ${slot}`);
 	}
+	byteArrayToIntArrayAsString(buffer) {
+		const result = [];
+		const dataView = new DataView(buffer);
+		for (let i = 0; i < dataView.byteLength; i++) {
+			result[i] = dataView.getUint8(i);
+		}
+		return JSON.stringify(result);
+	}
 	loadSlot(slot) {
+		// Ensure the slot has a save
+		if (!localStorage.getItem(`slot${slot}`)) {
+			console.log(`Slot ${slot} is empty`);
+			return;
+		}
 
+		// Load slot
+		const intArray = JSON.parse(localStorage.getItem(`slot${slot}`));
+		const dataView = new DataView(this.gridData);
+		for (let i = 0; i < dataView.byteLength; i++) {
+			dataView.setUint8(i, intArray[i]);
+		}
+
+		// Reload plants
+		this.reloadPlants();
 
 		// Give feedback
-		console.log(`Loading slot ${slot}`);
+		console.log(`Loaded slot ${slot}`);
+	}
+	reloadPlants() {
+		// Loop over the grid
+		this.grid.forEach((row, y) => {
+			row.forEach((tile, x) => {
+				tile.removePlant();
+				if (tile.dataView.getUint8(2)) {
+					tile.plant = tile.dataView.getUint8(2);
+				}
+			});
+		});
 	}
 
 	createGrid() {
 		// Create gridData
-		// holds the data for the Tiles in this.grid in array of structs (AoS) format
-		this.gridData = new ArrayBuffer(this.GRID_WIDTH * this.GRID_HEIGHT * Tile.size);	// a byte array
+		// holds the data for the Tiles (and Plants) in this.grid in array of structs (AoS) format
+		this.gridData = new ArrayBuffer(this.NUM_TILES * Tile.SIZE);	// a byte array
 
 		// Create grid
-		// a 2D array of Tile instances
+		// a 2D array of Tiles
 		this.grid = [];
 		for (let y = 0; y < this.GRID_HEIGHT; y++) {
 			this.grid[y] = [];
@@ -234,15 +212,14 @@ class Game extends Phaser.Scene {
 				// Convert 2D array index to 1D
 				const i = y * this.GRID_WIDTH + x;
 
-				// Create tile DataView
-				const dataView = new DataView(this.gridData, i * Tile.size, Tile.size);
-
 				// Create tile
 				const tile = new Tile(
 					this,
 					this.GRID_OFFSET_X + x*(this.TILE_OFFSET_X + this.TILE_SIZE),
 					this.GRID_OFFSET_Y + y*(this.TILE_OFFSET_Y + this.TILE_SIZE),
-					dataView
+					this.grid,
+					{ x: x, y: y },
+					new DataView(this.gridData, i * Tile.SIZE, Tile.SIZE)
 				);
 
 				// Create overlap between tile and player
@@ -262,7 +239,7 @@ class Game extends Phaser.Scene {
 		// Sprite
 		this.player = this.physics.add.sprite(150, 50, "player");
 		this.player.setCollideWorldBounds(true);
-		this.player.setDepth(Z_PLAYER);
+		this.player.setDepth(2);
 
 		// Tile Hitbox
 		// ensures the player can only reap/sow plants on the tile they're standing on
@@ -275,7 +252,8 @@ class Game extends Phaser.Scene {
 		<h1>Crops Life</h1>
 
 		<h2>Instructions</h2>
-		Grow four level two plants to win! <br>
+		Grow a max level plant on each tile to win! <br>
+		Plants have a max level of 2 <br>
 		Grass cannot grow if there's a mushroom to its left <br>
 		A mushroom cannot grow if there's grass above it
 		

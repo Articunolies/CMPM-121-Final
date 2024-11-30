@@ -1,6 +1,14 @@
 class Tile extends Phaser.Physics.Arcade.Sprite
 {
-	static size = 4;	// add readonly when move to TS
+	static DEPTH = 0;
+	static DIRECTIONS = {
+		UP: { x: 0, y: -1 },
+		DOWN: { x: 0, y: 1 },
+		LEFT: { x: -1, y: 0 },
+		RIGHT: { x: 1, y: 0 }
+	};
+
+	static SIZE = 4;
 	/*
 		Bytes	Type	Attribute
 		-------------------------
@@ -8,13 +16,19 @@ class Tile extends Phaser.Physics.Arcade.Sprite
 		1		Uint8	moisture
 		2-3		Plant	plant
 	*/
+	static OFFSET_SUN_LEVEL = 0;
+	static OFFSET_MOISTURE = 1;
 
-	constructor(scene, x, y, dataView) {
+	constructor(scene, x, y, grid, position, dataView) {
 		// Set sprite
 		super(scene, x, y, "dirt");
 		scene.add.existing(this);
 		scene.physics.add.existing(this);
-		this.setDepth(Z_TILE);
+		this.setDepth(Tile.DEPTH);
+
+		// Set grid
+		this.grid = grid;
+		this.position = position;
 
 		// Set data
 		this.dataView = dataView;
@@ -22,45 +36,25 @@ class Tile extends Phaser.Physics.Arcade.Sprite
 		this.moisture = 0;
 
 		// Set plant
-		this._plant = undefined;	// won't need to use the _ naming when we move to TS, just make this field private and the getter/setter public
+		const plantDataView = new DataView(dataView.buffer, dataView.byteOffset + Plant.SIZE, Plant.SIZE);
+		this.plant = new Plant(scene, x, y - this.height/2, this, plantDataView);
 	}
 
 	get sunLevel() {
-		return this.dataView.getUint8(0);
+		return this.dataView.getUint8(Tile.OFFSET_SUN_LEVEL);
 	}
 	set sunLevel(level) {
-		this.dataView.setUint8(0, level);
+		this.dataView.setUint8(Tile.OFFSET_SUN_LEVEL, level);
 	}
 
 	get moisture() {
-		return this.dataView.getUint8(1);
+		return this.dataView.getUint8(Tile.OFFSET_MOISTURE);
 	}
 	set moisture(amount) {
-		this.dataView.setUint8(1, amount);
+		this.dataView.setUint8(Tile.OFFSET_MOISTURE, amount);
 	}
 
-	get plant() {
-		return this._plant;
-	}
-	set plant(species) {
-		// Only make a new plant if this tile doesn't already have one and species is defined
-		if (!this.plant && species) {
-			const plantDataView = new DataView(this.dataView.buffer, this.dataView.byteOffset + Plant.size, Plant.size);
-			this._plant = new Plant(this.scene, this.x, this.y - this.height/2, plantDataView, species);
-			return;
-		}
-		// Else set plant to whatever value species is (if using this class properly it should always just be undefined)
-		this._plant = species;
-	}
-	reap() {
-		if (this.plant) {
-			this.plant.destroy();
-			this.plant = undefined;
-		}
-	}
-	attemptToGrowPlant() {
-		if (this.plant) {
-			this.plant.attemptToGrow();
-		}
+	getNeighbor(direction) {
+		return this.grid[this.position.x + direction.x][this.position.y + direction.y];
 	}
 }
