@@ -137,12 +137,29 @@ class Game extends Phaser.Scene {
 	}
 
 	saveToSlot(slot) {
-		const intArray = [];
-		const dataView = new DataView(this.grid.data);
-		for (let i = 0; i < dataView.byteLength; i++) {
-			intArray[i] = dataView.getUint8(i);
+		const save = {
+			undos: [],
+			redos: []
 		}
-		const string = JSON.stringify(intArray);
+
+		this.gridDatas.forEach((buffer, i) => {
+			const intArray = [];
+			const dataView = new DataView(buffer);
+			for (let i = 0; i < dataView.byteLength; i++) {
+				intArray[i] = dataView.getUint8(i);
+			}
+			save.undos[i] = intArray;
+		});
+		this.redoGridDatas.forEach((buffer, i) => {
+			const intArray = [];
+			const dataView = new DataView(buffer);
+			for (let i = 0; i < dataView.byteLength; i++) {
+				intArray[i] = dataView.getUint8(i);
+			}
+			save.redos[i] = intArray;
+		});
+
+		const string = JSON.stringify(save);
 		localStorage.setItem(`slot${slot}`, string);
 
 		// Give feedback
@@ -167,21 +184,26 @@ class Game extends Phaser.Scene {
 
 		// Load slot
 		const string = localStorage.getItem(`slot${slot}`);
-		const intArray = JSON.parse(string);
-		const dataView = new DataView(this.grid.data);
-		for (let i = 0; i < dataView.byteLength; i++) {
-			dataView.setUint8(i, intArray[i]);
-		}
+		const save = JSON.parse(string);
 
-		// Reload plants
-		this.grid.tiles.forEach(row => {
-			row.forEach(tile => {
-				if (tile.plant.exists) {
-					tile.plant.updateTexture();
-				}
-				tile.plant.setVisible(tile.plant.exists);
-			});
+		save.undos.forEach((intArray, i) => {
+			const buffer = new ArrayBuffer(intArray.length);
+			const dataView = new DataView(buffer);
+			for (let i = 0; i < intArray.length; i++) {
+				dataView.setUint8(i, intArray[i]);
+			}
+			this.gridDatas[i] = buffer;
 		});
+		save.redos.forEach((intArray, i) => {
+			const buffer = new ArrayBuffer(intArray.length);
+			const dataView = new DataView(buffer);
+			for (let i = 0; i < intArray.length; i++) {
+				dataView.setUint8(i, intArray[i]);
+			}
+			this.redoGridDatas[i] = buffer;
+		});
+
+		this.updateGameState();
 
 		// Give feedback
 		if (slot == 'A') {
