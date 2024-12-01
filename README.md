@@ -13,23 +13,43 @@
 ```mermaid
     packet-beta
     title Grid State
-    0-3: "Tile"
-    4-7: "Tile"
-    8-11: "Tile"
-    12-15: "Tile"
+    0-31: "Tile"
+    32-63: "Tile"
+    64-95: "Tile"
+    96-127: "Tile"
 ```
 ```mermaid
     packet-beta
     title Tile
-    0: "sunLevel"
-    1: "moisture"
-    2-3: "Plant"
+    0-7: "sunLevel"
+    8-15: "moisture"
+    16-31: "Plant"
 ```
 ```mermaid
     packet-beta
     title Plant
-    0: "id"
-    1: "level"
+    0-7: "id"
+    8-15: "level"
+```
+
+```mermaid
+    packet-beta
+    title Grid State
+    0-31: "Tile"
+    32-63: "Tile"
+    64-95: "Tile"
+    96-127: "Tile"
+
+    packet-beta
+    title Tile
+    0-7: "sunLevel"
+    8-15: "moisture"
+    16-31: "Plant"
+
+    packet-beta
+    title Plant
+    0-7: "id"
+    8-15: "level"
 ```
 
 - [F1.b] There are buttons to save to slot 1 and slot 2, and to load from slot 1 and slot 2. Saving involves converting the grid's state (a byte array) to a useable format for localStorage.
