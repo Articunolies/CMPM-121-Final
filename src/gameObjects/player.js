@@ -39,9 +39,9 @@ class Player extends Phaser.Physics.Arcade.Sprite {
 		this.reapPlantKey.on("down", () => this.reap());
 	}
 	plant(species) {
-		// Ensure player is standing on a tile
+		// Ensure player is standing on a tile and that tile doesn't have a plant
 		const tile = this.tileStandingOn;
-		if (tile) {
+		if (tile && !tile.plant.exists) {
 			tile.plant.become(species, 1);
 			this.scene.eventBus.emit("grid changed");
 		}
@@ -49,7 +49,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
 	reap() {
 		// Ensure player is standing on a tile
 		const tile = this.tileStandingOn;
-		if (tile) {
+		if (tile && tile.plant.exists) {
 			this.scene.winningPlants.delete(tile.plant);
 			tile.plant.remove();
 			this.scene.eventBus.emit("grid changed");

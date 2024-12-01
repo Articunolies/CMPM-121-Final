@@ -8,7 +8,7 @@ class Game extends Phaser.Scene {
 		this.createEventBus();
 		this.player = new Player(this, 150, 50);
 		this.grid = new Grid(this, 100, 50, 2, 2, 1, 1);
-		this.gridStates = [this.grid.state.slice(0)];
+		this.gridStates = [this.grid.state.slice(0)];	// set the first state to the state the game starts out in
 		this.redoGridStates = [];
 		this.winningPlants = new Set();
 		// about winningPlants:
@@ -46,9 +46,6 @@ class Game extends Phaser.Scene {
 		this.debugKey1 = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
 		this.debugKey1.on("down", () => {
 			console.log(this.grid.state);
-			console.log(this.grid.tiles[0][0].plant.dataView.buffer);
-			//console.log(this.gridDatas.length);
-			//console.log(this.redoGridDatas.length);
 		});
 		this.debugKey2 = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.G);
 		this.debugKey2.on("down", () => {
@@ -64,7 +61,8 @@ class Game extends Phaser.Scene {
 		Grow a max level plant on each tile to win! <br>
 		Plants have a max level of 2 <br>
 		Grass cannot grow if there's a mushroom to its left <br>
-		A mushroom cannot grow if there's grass above it
+		A mushroom cannot grow if there's grass above it <br>
+		This game autosaves every time after planting, reaping, or advancing time
 		
 		<h2>Controls</h2>
 		Move: ( WASD ) <br>
@@ -168,10 +166,7 @@ class Game extends Phaser.Scene {
 		localStorage.setItem(`slot${slot}`, JSON.stringify(save));
 
 		// Give feedback
-		if (slot == 'A') {
-			console.log("Auto saved");
-		}
-		else {
+		if (slot != 'A') {
 			console.log(`Saved to slot ${slot}`);
 		}
 	}
@@ -233,6 +228,7 @@ class Game extends Phaser.Scene {
 		this.eventBus = new Phaser.Events.EventEmitter();
 		this.eventBus.on("grid changed", () => {
 			this.gridStates.push(this.grid.state.slice(0));	// get a copy
+			this.redoGridStates = [];	// clear
 			this.saveToSlot('A');
 		});
 	}
