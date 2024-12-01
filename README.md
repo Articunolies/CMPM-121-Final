@@ -32,26 +32,6 @@
     8-15: "level"
 ```
 
-```mermaid
-    packet-beta
-    title Grid State
-    0-31: "Tile"
-    32-63: "Tile"
-    64-95: "Tile"
-    96-127: "Tile"
-
-    packet-beta
-    title Tile
-    0-7: "sunLevel"
-    8-15: "moisture"
-    16-31: "Plant"
-
-    packet-beta
-    title Plant
-    0-7: "id"
-    8-15: "level"
-```
-
 - [F1.b] There are buttons to save to slot 1 and slot 2, and to load from slot 1 and slot 2. Saving involves converting the grid's state (a byte array) to a useable format for localStorage.
 - [F1.c] The game autosaves every time after the player plants, reaps, or advances time. When the player comes back to the game in a new session, they can load their autosave by pressing a button. They should not plant, reap, or advance time before loading their autosave in this new session however, or else their autosave will be overridden.
 - [F1.d] The player is able to undo planting, reaping, and advancing time. The game remembers its previous and undone game states in order to do this. This memory is also stored in save slots, allowing the player to load a slot and then start undoing or redoing.
