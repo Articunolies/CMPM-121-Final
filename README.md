@@ -1,4 +1,42 @@
-# DevLog Entry 1- [11/22/2024]
+# DevLog Entry 2 - [11/30/2024]
+
+## How we satisfied the software requirements
+- [F0.a] Same as last week, but there's a player class now which is in a module
+- [F0.b] Same as last week, but interfacing with tiles and plants is different now since those are now both classes which are in modules
+- [F0.c] Same as last week
+- [F0.d] Same as last week
+- [F0.e] Same as last week
+- [F0.f] Same as last week, but the sun level and moisture needed for a plant to grow is now stored in a data object for that plant instead of being hard coded
+- [F0.g] Same as last week but now there's less tiles so the win condition has been adjusted accordingly
+- [F1.a] The grid class stores its state in an attribute called "state." It's a single contiguous byte array that stores tile and plant data in array of structs (AoS) format. Tiles and Plants are simply Phaser sprites that also contain a DataView that views their corresponding portion of the grid's state.
+
+```mermaid
+    packet-beta
+    title Grid State
+    0-3: "Tile"
+    4-7: "Tile"
+    8-11: "Tile"
+    12-15: "Tile"
+```
+```mermaid
+    packet-beta
+    title Tile
+    0: "sunLevel"
+    1: "moisture"
+    2-3: "Plant"
+```
+```mermaid
+    packet-beta
+    title Plant
+    0: "id"
+    1: "level"
+```
+
+- [F1.b] There are buttons to save to slot 1 and slot 2, and to load from slot 1 and slot 2. Saving involves converting the grid's state (a byte array) to a useable format for localStorage.
+- [F1.c] The game autosaves every time after the player plants, reaps, or advances time. When the player comes back to the game in a new session, they can load their autosave by pressing a button. They should not plant, reap, or advance time before loading their autosave in this new session however, or else their autosave will be overridden.
+- [F1.d] The player is able to undo planting, reaping, and advancing time. The game remembers its previous and undone game states in order to do this. This memory is also stored in save slots, allowing the player to load a slot and then start undoing or redoing.
+
+# DevLog Entry 1 - [11/22/2024]
 
 ## How we satisfied the software requirements
 ### [F0.a] 
@@ -25,7 +63,7 @@ The player "beats" the game when they have 10 or more plants that are level 2 or
 ## Reflection
 We made a major change during the process of developing our game. Our original language that we wanted to use was Typescript. The implementation and integration of Typescript with Phaser ended up being a lot more complicated and the documentation that we originally found had be outdated for years. Porting the game to Typescript is a complicated task that we need more time with so we believe Typscript shouldn't be the language with start with. We have made some progress on porting the game, so it isn't hopeless and can be done. We will continue to look into how to port our game into Typescript, but will keep developing in Javascript for now.
 
-# Devlog Entry 0- [11/15/2024]
+# Devlog Entry 0 - [11/15/2024]
 
 ## Introducing the team
 Tools Lead: Derek Simpson
