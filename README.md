@@ -36,6 +36,9 @@
 - [F1.c] The game autosaves every time after the player plants, reaps, or advances time. When the player comes back to the game in a new session, they can load their autosave by pressing a button. They should not plant, reap, or advance time before loading their autosave in this new session however, or else their autosave will be overridden.
 - [F1.d] The player is able to undo planting, reaping, and advancing time. The game remembers its previous and undone game states in order to do this. This memory is also stored in save slots, allowing the player to load a slot and then start undoing or redoing.
 
+## Reflection
+Our plan has sort of changed with F1. We didn't make any changes regarding the tools and materials used like we did with F0, but continuing to use JavaScript has created a huge coupling between the program and the developer, where anybody who works on this game needs to be deeply familiar with the variables that exist in it. This is because every variable in JavaScript is an "any." Regarding the game's feedback that it provides to the player, I, and I'm pretty sure the rest of my team, would have liked to add in-game feedback for advancing time, saving/loading, and undoing/redoing, but were unable to due to time constraints. We're not happy that the player basically needs to have the console open while playing with how the game currently is. We hope to be able to add more feedback in the future now that the  game's code has become more modularized.
+
 # DevLog Entry 1 - [11/22/2024]
 
 ## How we satisfied the software requirements
